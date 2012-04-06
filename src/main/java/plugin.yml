@@ -2,7 +2,7 @@
 ## no-modify {
 name: Inception
 version: 0.0.0
-load: STARTUP
+load: POSTWORLD
 author: Xaymar
 website: http://alteredgaming.de/
 main: ag.AlteredGaming.Inception
