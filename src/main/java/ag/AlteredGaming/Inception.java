@@ -7,23 +7,38 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Inception extends JavaPlugin {
 
     private Logger objLogger;
+    private File objPluginDirectory;
     private String strPluginDirectory;
+    private File objWorldConfigDirectory;
     private String strWorldConfigDirectory;
+    private File objPluginConfig;
+    private String strPluginConfig;
 
     @Override
     public void onDisable() {
-	objLogger.info("Disabling...");
+	//Null all variable references to allow the GC to delete these
+	objPluginConfig = null;
+	strPluginConfig = null;
+	objWorldConfigDirectory = null;
+	strWorldConfigDirectory = null;
+	objPluginDirectory = null;
+	strPluginDirectory = null;
 
 	objLogger.info("Disabled.");
+	objLogger = null;
     }
 
     @Override
     public void onEnable() {
 	objLogger = this.getLogger();
 
-	objLogger.info("Enabling...");
+	//Files
 	strPluginDirectory = this.getDataFolder().getPath();
-	strWorldConfigDirectory = strPluginDirectory + "world/";
+	objPluginDirectory = new File(strPluginDirectory);
+	strWorldConfigDirectory = strPluginDirectory + "/per-world/";
+	objWorldConfigDirectory = new File(strWorldConfigDirectory);
+	strPluginConfig = strPluginDirectory + "config.yml";
+	objPluginConfig = new File(strPluginConfig);
 
 	saveDefaultConfig();
 
@@ -33,19 +48,23 @@ public class Inception extends JavaPlugin {
     @Override
     public void saveDefaultConfig() {
 	/*
-	 * Create directory structure
+	 * Create base folder structure
 	 */
-	File objPluginDirectory = new File(strPluginDirectory);
-	if (objPluginDirectory.mkdir()) {
-	    objLogger.fine("Created '" + strPluginDirectory + "'.");
-	    File objWorldConfigDirectory = new File(strWorldConfigDirectory);
+	if (objPluginDirectory.exists()) {
+	    if (objPluginDirectory.mkdir()) {
+		objLogger.info("Created '" + strPluginDirectory + "'.");
+	    } else {
+		objLogger.warning("Could not create '" + strPluginDirectory + "'.");
+	    }
+	}
+	if (!objWorldConfigDirectory.exists()) {
 	    if (objWorldConfigDirectory.mkdir()) {
-		objLogger.fine("Created '" + strWorldConfigDirectory + "'.");
+		objLogger.info("Created '" + strWorldConfigDirectory + "'.");
 	    } else {
 		objLogger.warning("Could not create '" + strWorldConfigDirectory + "'.");
 	    }
-	} else {
-	    objLogger.warning("Could not create '" + strPluginDirectory + "'.");
+	}
+	if (!objPluginConfig.exists()) {
 	}
     }
 }
