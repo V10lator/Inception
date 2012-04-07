@@ -1,11 +1,12 @@
 package ag.AlteredGaming;
 
+import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
+import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Inception
@@ -19,16 +20,26 @@ public class Inception
     private String strWorldConfigDirectory;
     private File objPluginConfig;
     private String strPluginConfig;
+    
+    private WorldListener objWorldListener;
 
     @Override
     public void onDisable() {
         //Null all variable references to allow the GC to delete these
+        
+        objWorldListener = null;
+        
         objPluginConfig = null;
         strPluginConfig = null;
         objWorldConfigDirectory = null;
         strWorldConfigDirectory = null;
         objPluginDirectory = null;
         strPluginDirectory = null;
+        try {
+            ezfPluginFile.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+        }
         ezfPluginFile = null;
 
         objLogger.info("Disabled.");
@@ -58,6 +69,12 @@ public class Inception
 
         saveDefaultConfig();
 
+        
+        
+        //Event Listeners
+        objWorldListener = new WorldListener();
+        getServer().getPluginManager().registerEvents(objWorldListener, this);
+        
         objLogger.info("Enabled.");
     }
 
@@ -84,7 +101,7 @@ public class Inception
         }
         if (!objPluginConfig.exists()) {
             objLogger.finest("'" + strPluginConfig + "' does not exist, unpacking...");
-
+            ezfPluginFile.unzipPath("config.yml", strPluginDirectory);
         }
     }
 }

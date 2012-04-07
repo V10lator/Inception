@@ -20,11 +20,13 @@ import java.util.zip.ZipFile;
  */
 public class EasyZipFile {
 
+    private File objRealZipFile;
     private ZipFile objZipFile;
 
     public EasyZipFile(File objTargetZipFile)
             throws ZipException, IOException, NullPointerException, FileNotFoundException {
         if (objTargetZipFile != null && objTargetZipFile.exists() && !objTargetZipFile.isDirectory()) {
+            objRealZipFile = objTargetZipFile;
             objZipFile = new ZipFile(objTargetZipFile);
         } else {
             //Catch this!
@@ -40,7 +42,7 @@ public class EasyZipFile {
         }
     }
 
-    private ZipEntry findFile(String path) {
+    private ZipEntry findPath(String path) {
         Enumeration enmZipEntries = objZipFile.entries();
         File objFoundFile = null;
         while (enmZipEntries.hasMoreElements()) {
@@ -52,30 +54,63 @@ public class EasyZipFile {
         return null;
     }
 
-    public File unzipFile(String path, String toPath) {
-        ZipEntry objTheFile = findFile(path);
-        File objExtractedFile = null;
-        if (objTheFile != null) {
-            objExtractedFile = new File(toPath + objTheFile.getName());
-            if (objExtractedFile.exists()) {
-                objExtractedFile.delete();
+    public File unzipPath(String path, File toPath) {
+        return unzipPath(path, toPath.getAbsolutePath());
+    }
+    
+    public File unzipPath(String path, String toPath) {
+        ZipEntry objThePath = findPath(path);
+        File objExtractedPath = null;
+        if (objThePath != null) {
+            objExtractedPath = new File(toPath + "\\" + objThePath.getName());
+            if (objExtractedPath.exists()) {
+                objExtractedPath.delete();
             }
 
-            objExtractedFile.mkdirs();
-            if (!objTheFile.isDirectory()) {
+            if (!objThePath.isDirectory()) {
                 try {
-                    objExtractedFile.createNewFile();
-                    InputStream objZipInput = objZipFile.getInputStream(objTheFile);
-                    OutputStream objZipOutput = new BufferedOutputStream(new FileOutputStream(objExtractedFile));
+                    objExtractedPath.createNewFile();
+                    InputStream objZipInput = objZipFile.getInputStream(objThePath);
+                    OutputStream objZipOutput = new BufferedOutputStream(new FileOutputStream(objExtractedPath));
                     util.copyInputStream(objZipInput, objZipOutput);
                     objZipInput.close();
                     objZipOutput.close();
-                    return objExtractedFile;
+                    return objExtractedPath;
                 } catch (IOException ex) {
                     Logger.getLogger(EasyZipFile.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            } else {
+                objExtractedPath.mkdirs();
+                return objExtractedPath;
             }
         }
         return null;
+    }
+
+    public void open()
+            throws ZipException, IOException {
+        if (objZipFile != null) {
+            close();
+        }
+        if (objRealZipFile != null && objRealZipFile.exists() && !objRealZipFile.isDirectory()) {
+            objZipFile = new ZipFile(objRealZipFile);
+        } else {
+            //Catch this!
+            if (objRealZipFile == null) {
+                throw (new NullPointerException());
+            }
+            if (!objRealZipFile.exists()) {
+                throw (new FileNotFoundException());
+            }
+            if (objRealZipFile.isDirectory()) {
+                throw (new FileNotFoundException());
+            }
+        }
+    }
+
+    public void close()
+            throws IOException {
+        objZipFile.close();
+        objZipFile = null;
     }
 }
