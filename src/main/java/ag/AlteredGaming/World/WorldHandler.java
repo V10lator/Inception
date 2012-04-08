@@ -11,8 +11,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 /**
  *
@@ -105,7 +103,7 @@ public class WorldHandler {
                                                             ent.getLocation().getZ());
                     _UpperWorldExit.setPitch(ent.getLocation().getPitch());
                     _UpperWorldExit.setYaw(ent.getLocation().getYaw());
-                    //Make space for the player to stand in.
+                    //Make space for the entity to stand in.
                     objUpperWorld.getBlockAt(_UpperWorldExit).setType(Material.AIR);
                     objUpperWorld.getBlockAt(_UpperWorldExit.add(0, 1, 0)).setType(Material.AIR);
                     ent.teleport(_UpperWorldExit);
@@ -119,7 +117,7 @@ public class WorldHandler {
                                                             ent.getLocation().getZ());
                     _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                     _LowerWorldExit.setYaw(ent.getLocation().getYaw());
-                    //Make space for the player to stand in.
+                    //Make space for the entity to stand in.
                     objLowerWorld.getBlockAt(_LowerWorldExit).setType(Material.AIR);
                     objLowerWorld.getBlockAt(_LowerWorldExit.add(0, 1, 0)).setType(Material.AIR);
                     ent.teleport(_LowerWorldExit);
