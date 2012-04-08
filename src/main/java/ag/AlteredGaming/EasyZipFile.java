@@ -55,19 +55,21 @@ public class EasyZipFile {
     }
 
     public File unzipPath(String path, File toPath) {
-        return unzipPath(path, toPath.getAbsolutePath());
+        return unzipPath(path, toPath.getAbsoluteFile());
     }
-    
+
     public File unzipPath(String path, String toPath) {
         ZipEntry objThePath = findPath(path);
         File objExtractedPath = null;
         if (objThePath != null) {
             objExtractedPath = new File(toPath + "\\" + objThePath.getName());
-            if (objExtractedPath.exists()) {
-                objExtractedPath.delete();
-            }
 
             if (!objThePath.isDirectory()) {
+                if (objExtractedPath.isFile()) {
+                    if (objExtractedPath.exists()) {
+                        objExtractedPath.delete();
+                    }
+                }
                 try {
                     objExtractedPath.createNewFile();
                     InputStream objZipInput = objZipFile.getInputStream(objThePath);
@@ -80,11 +82,26 @@ public class EasyZipFile {
                     Logger.getLogger(EasyZipFile.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
+                if (objExtractedPath.isDirectory()) {
+                    if (objExtractedPath.exists()) {
+                        objExtractedPath.delete();
+                    }
+                }
                 objExtractedPath.mkdirs();
                 return objExtractedPath;
             }
         }
         return null;
+    }
+
+    public File unzipPathAs(String path, String toPath) {
+        return unzipPathAs(path, new File(toPath));
+    }
+
+    public File unzipPathAs(String path, File toPath) {
+        File objPath = unzipPath(path, System.getProperty("java.io.tmpdir"));
+        objPath.renameTo(toPath);
+        return objPath;
     }
 
     public void open()
@@ -112,5 +129,11 @@ public class EasyZipFile {
             throws IOException {
         objZipFile.close();
         objZipFile = null;
+    }
+
+    public void reload()
+            throws IOException {
+        close();
+        open();
     }
 }
