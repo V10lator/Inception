@@ -1,17 +1,19 @@
 package ag.AlteredGaming;
 
+import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
-import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Inception
         extends JavaPlugin {
 
+    @SuppressWarnings("NonConstantLogger")
     private Logger objLogger;
     private EasyZipFile ezfPluginFile;
     private File objPluginDirectory;
@@ -20,15 +22,17 @@ public class Inception
     private String strWorldConfigDirectory;
     private File objPluginConfig;
     private String strPluginConfig;
-    
+    //WorldListener to catch world events
     private WorldListener objWorldListener;
+    //Holds all WorldHandlers that exist
+    private LinkedList<WorldHandler> ollWorldHandlers = new LinkedList<WorldHandler>();
 
     @Override
     public void onDisable() {
         //Null all variable references to allow the GC to delete these
-        
+
         objWorldListener = null;
-        
+
         objPluginConfig = null;
         strPluginConfig = null;
         objWorldConfigDirectory = null;
@@ -38,7 +42,7 @@ public class Inception
         try {
             ezfPluginFile.close();
         } catch (IOException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         }
         ezfPluginFile = null;
 
@@ -48,17 +52,17 @@ public class Inception
 
     @Override
     public void onEnable() {
-        objLogger = this.getLogger();
+        objLogger = Logger.getLogger(Inception.class.getName());
 
         //Plugin files and folders
         try {
             ezfPluginFile = new EasyZipFile(this.getFile());
         } catch (ZipException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         } catch (NullPointerException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         }
         strPluginDirectory = this.getDataFolder().getPath();
         objPluginDirectory = new File(strPluginDirectory);
@@ -69,12 +73,13 @@ public class Inception
 
         saveDefaultConfig();
 
-        
-        
+
+
         //Event Listeners
-        objWorldListener = new WorldListener();
+        objWorldListener = new WorldListener(this);
         getServer().getPluginManager().registerEvents(objWorldListener, this);
-        
+        objLogger.fine("Registered World Listener...");
+
         objLogger.info("Enabled.");
     }
 
@@ -103,5 +108,45 @@ public class Inception
             objLogger.finest("'" + strPluginConfig + "' does not exist, unpacking...");
             ezfPluginFile.unzipPath("config.yml", strPluginDirectory);
         }
+    }
+
+    public Logger getLogger() {
+        return objLogger;
+    }
+
+    public EasyZipFile getEzfPluginFile() {
+        return ezfPluginFile;
+    }
+
+    public WorldListener getWorldListener() {
+        return objWorldListener;
+    }
+
+    public LinkedList<WorldHandler> getWorldHandlers() {
+        return ollWorldHandlers;
+    }
+
+    public String getPluginConfigPath() {
+        return strPluginConfig;
+    }
+
+    public File getPluginConfigFile() {
+        return objPluginConfig;
+    }
+
+    public String getPluginDirectoryPath() {
+        return strPluginDirectory;
+    }
+
+    public File getPluginDirectoryFile() {
+        return objPluginDirectory;
+    }
+
+    public String getWorldConfigDirectoryPath() {
+        return strWorldConfigDirectory;
+    }
+
+    public File getWorldConfigDirectoryFile() {
+        return objWorldConfigDirectory;
     }
 }
