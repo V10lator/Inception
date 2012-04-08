@@ -28,29 +28,6 @@ public class Inception
     private LinkedList<WorldHandler> ollWorldHandlers = new LinkedList<WorldHandler>();
 
     @Override
-    public void onDisable() {
-        //Null all variable references to allow the GC to delete these
-
-        objWorldListener = null;
-
-        objPluginConfig = null;
-        strPluginConfig = null;
-        objWorldConfigDirectory = null;
-        strWorldConfigDirectory = null;
-        objPluginDirectory = null;
-        strPluginDirectory = null;
-        try {
-            ezfPluginFile.close();
-        } catch (IOException ex) {
-            objLogger.log(Level.SEVERE, null, ex);
-        }
-        ezfPluginFile = null;
-
-        objLogger.info("Disabled.");
-        objLogger = null;
-    }
-
-    @Override
     public void onEnable() {
         objLogger = Logger.getLogger(Inception.class.getName());
 
@@ -71,9 +48,8 @@ public class Inception
         strPluginConfig = strPluginDirectory + "\\config.yml";
         objPluginConfig = new File(strPluginConfig);
 
+        //Check if we need to generate default files and generate them
         saveDefaultConfig();
-
-
 
         //Event Listeners
         objWorldListener = new WorldListener(this);
@@ -81,6 +57,28 @@ public class Inception
         objLogger.fine("Registered World Listener...");
 
         objLogger.info("Enabled.");
+    }
+
+    @Override
+    public void onDisable() {
+        //Null all variable references to allow the GC to delete these
+        objWorldListener = null;
+
+        objPluginConfig = null;
+        strPluginConfig = null;
+        objWorldConfigDirectory = null;
+        strWorldConfigDirectory = null;
+        objPluginDirectory = null;
+        strPluginDirectory = null;
+        try {
+            ezfPluginFile.close();
+        } catch (IOException ex) {
+            objLogger.log(Level.SEVERE, null, ex);
+        }
+        ezfPluginFile = null;
+
+        objLogger.info("Disabled.");
+        objLogger = null;
     }
 
     @Override
@@ -106,12 +104,17 @@ public class Inception
         }
         if (!objPluginConfig.exists()) {
             objLogger.finest("'" + strPluginConfig + "' does not exist, unpacking...");
-            ezfPluginFile.unzipPath("config.yml", strPluginDirectory);
+            ezfPluginFile.unzipPathAs("config.yml", objPluginConfig);
         }
     }
 
+    @Override
     public Logger getLogger() {
-        return objLogger;
+        if (objLogger != null) {
+            return objLogger;
+        } else {
+            return Logger.getLogger(Inception.class.getName());
+        }
     }
 
     public EasyZipFile getEzfPluginFile() {

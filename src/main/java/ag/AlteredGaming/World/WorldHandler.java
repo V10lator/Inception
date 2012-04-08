@@ -31,18 +31,37 @@ public class WorldHandler {
         this.objWorld = objWorld;
         this.objWorldConfigFile = new File(objPlugin.getWorldConfigDirectoryFile().getPath() + "\\" + objWorld.getName() + ".yml");
         this.objWorldConfig = new YamlConfiguration();
-        loadConfiguration();
+        
+        //Check if we need to generate default files and generate them
+        saveDefaultConfig();
+        
+        loadConfig();
     }
     
-    private void loadConfiguration() {
+    private void saveDefaultConfig() {
+        if (!objWorldConfigFile.exists()) {
+            objPlugin.getLogger().finest("'" + objWorldConfigFile.getAbsoluteFile() + "' does not exist, unpacking...");
+            objPlugin.getEzfPluginFile().unzipPathAs("world-config.yml", objWorldConfigFile);
+        }
+    }
+    
+    private void loadConfig() {
         try {
             objWorldConfig.load(objWorldConfigFile);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(WorldHandler.class.getName()).log(Level.SEVERE, null, ex);
+            objPlugin.getLogger().log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(WorldHandler.class.getName()).log(Level.SEVERE, null, ex);
+            objPlugin.getLogger().log(Level.SEVERE, null, ex);
         } catch (InvalidConfigurationException ex) {
-            Logger.getLogger(WorldHandler.class.getName()).log(Level.SEVERE, null, ex);
+            objPlugin.getLogger().log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void saveConfig() {
+        try {
+            objWorldConfig.save(objWorldConfigFile);
+        } catch (IOException ex) {
+            objPlugin.getLogger().log(Level.SEVERE, null, ex);
         }
     }
 }
