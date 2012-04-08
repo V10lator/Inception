@@ -1,7 +1,6 @@
 package ag.AlteredGaming;
 
 import ag.AlteredGaming.World.PlayerListener;
-import ag.AlteredGaming.World.WorldConfigLoaderRunnable;
 import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
@@ -87,9 +86,6 @@ public class Inception
         //Hashmap for WorldHandler storage
         ohmWorldHandlers = new HashMap<World, WorldHandler>();
         
-        //There's no Event for when the server's done starting so we have to schedule one
-        getServer().getScheduler().scheduleSyncDelayedTask(this, new WorldConfigLoaderRunnable(this));
-        
         //Event Listeners
         objLogger.fine("Registering World Listener...");
         objWorldListener = new WorldListener(this);
@@ -167,19 +163,6 @@ public class Inception
         }
     }
     
-    public void loadWorlds() {
-        //Create WorldHandler's for existing configuration files, if the world exists.
-        for(File file : objWorldConfigDirectory.listFiles(new YMLFilenameFilter())) {
-            String _WorldName = file.getName().substring(0,file.getName().indexOf("."));
-            World _World = getServer().getWorld(_WorldName);
-            if (_World != null) {
-                ohmWorldHandlers.put(_World, new WorldHandler(this, _World));
-            } else {
-                objLogger.warning("Configuration file for non-existing world: " + _WorldName + ".");
-            }
-        }
-    }
-
     public EasyZipFile getEzfPluginFile() {
         return ezfPluginFile;
     }
