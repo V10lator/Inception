@@ -1,18 +1,22 @@
 upper:
   #What world should climbing go to? (null or unknown world to disable climbing)
   world: null
-  #What layer in the upper world should Inception use as a base?
-  start: 0
-  #How much layers should we copy into this world from the above world?
+  #What layer should the overlapping take blocks & events from?
+  overlapstart: 0
+  #How many layers should we copy into this world from the above world?
   overlap: 0
   #At what layer should we teleport entities and players?
-  teleport: 0
+  teleport: 255
+  #To what layer should we teleport entities and players?
+  teleporttarget: 1
 lower:
   #What world should falling go to? (null or unknown world to disable falling)
   world: null
-  #What layer in the lower world should Inception use as a base?
-  start: 0
-  #How much layers should we copy into this world from the below world?
+  #What layer should the overlapping take blocks & events from?
+  overlapstart: 255
+  #How many layers should we copy into this world from the below world?
   overlap: 0
   #At what layer should we teleport entities and players?
   teleport: 0
+  #To what layer should we teleport entities and players?
+  teleporttarget: 254

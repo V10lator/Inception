@@ -1,6 +1,5 @@
 package ag.AlteredGaming;
 
-import ag.AlteredGaming.World.PlayerListener;
 import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
@@ -34,7 +33,6 @@ public class Inception
     private YamlConfiguration objConfiguration;
     //WorldListener to catch world events
     private WorldListener objWorldListener;
-    private PlayerListener objPlayerListener;
     //Holds all WorldHandlers that exist
     private HashMap<World, WorldHandler> ohmWorldHandlers;
 
@@ -92,9 +90,6 @@ public class Inception
         objLogger.fine("Registering World Listener...");
         objWorldListener = new WorldListener(this);
         getServer().getPluginManager().registerEvents(objWorldListener, this);
-        objLogger.fine("Registering Player Listener...");
-        objPlayerListener = new PlayerListener(this);
-        getServer().getPluginManager().registerEvents(objPlayerListener, this);
 
         objLogger.info("Enabled.");
     }
@@ -107,7 +102,6 @@ public class Inception
         //Null all variable references to allow the GC to delete these
         ohmWorldHandlers.clear();
         ohmWorldHandlers = null;
-        objPlayerListener = null;
         objWorldListener = null;
         objConfiguration = null;
         objPluginConfig = null;
