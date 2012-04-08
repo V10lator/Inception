@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -56,7 +58,7 @@ public class Inception
         objWorldConfigDirectory = new File(strWorldConfigDirectory);
         strPluginConfig = strPluginDirectory + "\\config.yml";
         objPluginConfig = new File(strPluginConfig);
-        
+
         /*
          * Create base folder structure
          */
@@ -85,7 +87,7 @@ public class Inception
 
         //Hashmap for WorldHandler storage
         ohmWorldHandlers = new HashMap<World, WorldHandler>();
-        
+
         //Event Listeners
         objLogger.fine("Registering World Listener...");
         objWorldListener = new WorldListener(this);
@@ -99,6 +101,9 @@ public class Inception
 
     @Override
     public void onDisable() {
+        //Cancel all tasks
+        getServer().getScheduler().cancelTasks(this);
+        
         //Null all variable references to allow the GC to delete these
         ohmWorldHandlers.clear();
         ohmWorldHandlers = null;
@@ -155,6 +160,28 @@ public class Inception
     }
 
     @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        args = util.reparseArgs(args);
+
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("reload")) {
+                sender.sendMessage("[Inception] Reloading...");
+                this.loadConfig();
+                for (WorldHandler _wh : ohmWorldHandlers.values()) {
+                    _wh.loadConfig();
+                }
+                sender.sendMessage("[Inception] Reloaded!");
+                return true;
+            }
+        }
+
+        sender.sendMessage("Command 'inception' usage:"
+                           + "  inception reload - Reload configuration files from disk");
+
+        return false;
+    }
+
+    @Override
     public Logger getLogger() {
         if (objLogger != null) {
             return objLogger;
@@ -162,7 +189,7 @@ public class Inception
             return Logger.getLogger(Inception.class.getName());
         }
     }
-    
+
     public EasyZipFile getEzfPluginFile() {
         return ezfPluginFile;
     }

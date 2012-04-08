@@ -9,4 +9,6 @@ main: ag.AlteredGaming.Inception
 load: STARTUP
 ## }
 commands:
+  Inception:
+    description: Control Inception with this command
 permissions:
