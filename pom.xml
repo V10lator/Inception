@@ -7,7 +7,7 @@
     <groupId>ag.AlteredGaming</groupId>
     <artifactId>Inception</artifactId>
     <name>Inception</name>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.1-Alpha</version>
     <url>http://alteredgaming.de</url>
     <description>TODO</description>
     
@@ -31,10 +31,10 @@
     </scm>
     
     <!-- Continuous integration -->
-    <ciManagement>
+    <!--<ciManagement>
 	<system>jenkins</system>
 	<url>http://ci.localhost/</url>
-    </ciManagement>
+    </ciManagement>-->
     
     <!-- Dependencies -->
     <dependencies>
@@ -59,6 +59,7 @@
 		    <source>1.6</source>
 		    <target>1.6</target>
 		    <encoding>${project.build.sourceEncoding}</encoding>
+		    <showDeprecation>true</showDeprecation>
 		</configuration>
 	    </plugin>
             <!-- Resources plugin -->
@@ -100,5 +101,5 @@
 	</plugins>
     </build>
     
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 </project>
