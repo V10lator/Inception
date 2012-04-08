@@ -1,2 +1,18 @@
-## YAML Template.
----
+upper:
+  #What world should climbing go to? (null or unknown world to disable climbing)
+  world: null
+  #What height should we start from in the upper world?
+  start: 0
+  #How much layers should we copy into this world from the above world?
+  overlap: 0
+  #At what layer should we teleport people?
+  teleport: 0
+lower:
+  #What world should falling go to? (null or unknown world to disable falling)
+  world: null
+  #What height should we start from in the lower world?
+  start: 0
+  #How much layers should we copy into this world from the below world?
+  overlap: 0
+  #At what layer should we teleport people?
+  teleport: 0

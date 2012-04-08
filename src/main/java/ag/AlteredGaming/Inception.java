@@ -1,13 +1,19 @@
 package ag.AlteredGaming;
 
+import ag.AlteredGaming.World.PlayerListener;
+import ag.AlteredGaming.World.WorldConfigLoaderRunnable;
 import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
+import org.bukkit.World;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Inception
@@ -16,20 +22,24 @@ public class Inception
     @SuppressWarnings("NonConstantLogger")
     private Logger objLogger;
     private EasyZipFile ezfPluginFile;
-    private File objPluginDirectory;
+    //FPlugin files(with String path)
     private String strPluginDirectory;
-    private File objWorldConfigDirectory;
     private String strWorldConfigDirectory;
-    private File objPluginConfig;
     private String strPluginConfig;
+    private File objPluginDirectory;
+    private File objWorldConfigDirectory;
+    private File objPluginConfig;
+    //Configuration Stuff
+    private YamlConfiguration objConfiguration;
     //WorldListener to catch world events
     private WorldListener objWorldListener;
+    private PlayerListener objPlayerListener;
     //Holds all WorldHandlers that exist
-    private LinkedList<WorldHandler> ollWorldHandlers = new LinkedList<WorldHandler>();
+    private HashMap<World, WorldHandler> ohmWorldHandlers;
 
     @Override
     public void onEnable() {
-        objLogger = Logger.getLogger(Inception.class.getName());
+        objLogger = super.getLogger();//Logger.getLogger(Inception.class.getName());
 
         //Plugin files and folders
         try {
@@ -47,42 +57,7 @@ public class Inception
         objWorldConfigDirectory = new File(strWorldConfigDirectory);
         strPluginConfig = strPluginDirectory + "\\config.yml";
         objPluginConfig = new File(strPluginConfig);
-
-        //Check if we need to generate default files and generate them
-        saveDefaultConfig();
-
-        //Event Listeners
-        objWorldListener = new WorldListener(this);
-        getServer().getPluginManager().registerEvents(objWorldListener, this);
-        objLogger.fine("Registered World Listener...");
-
-        objLogger.info("Enabled.");
-    }
-
-    @Override
-    public void onDisable() {
-        //Null all variable references to allow the GC to delete these
-        objWorldListener = null;
-
-        objPluginConfig = null;
-        strPluginConfig = null;
-        objWorldConfigDirectory = null;
-        strWorldConfigDirectory = null;
-        objPluginDirectory = null;
-        strPluginDirectory = null;
-        try {
-            ezfPluginFile.close();
-        } catch (IOException ex) {
-            objLogger.log(Level.SEVERE, null, ex);
-        }
-        ezfPluginFile = null;
-
-        objLogger.info("Disabled.");
-        objLogger = null;
-    }
-
-    @Override
-    public void saveDefaultConfig() {
+        
         /*
          * Create base folder structure
          */
@@ -102,9 +77,84 @@ public class Inception
                 objLogger.warning("Unable to create '" + strWorldConfigDirectory + "'.");
             }
         }
+        //Check if we need to create the default configuration file
+        saveDefaultConfig();
+
+        //Configuration Stuff
+        objConfiguration = new YamlConfiguration();
+        loadConfig();
+
+        //Hashmap for WorldHandler storage
+        ohmWorldHandlers = new HashMap<World, WorldHandler>();
+        
+        //There's no Event for when the server's done starting so we have to schedule one
+        getServer().getScheduler().scheduleSyncDelayedTask(this, new WorldConfigLoaderRunnable(this));
+        
+        //Event Listeners
+        objLogger.fine("Registering World Listener...");
+        objWorldListener = new WorldListener(this);
+        getServer().getPluginManager().registerEvents(objWorldListener, this);
+        objLogger.fine("Registering Player Listener...");
+        objPlayerListener = new PlayerListener(this);
+        getServer().getPluginManager().registerEvents(objPlayerListener, this);
+
+        objLogger.info("Enabled.");
+    }
+
+    @Override
+    public void onDisable() {
+        //Null all variable references to allow the GC to delete these
+        ohmWorldHandlers.clear();
+        ohmWorldHandlers = null;
+        objPlayerListener = null;
+        objWorldListener = null;
+        objConfiguration = null;
+        objPluginConfig = null;
+        strPluginConfig = null;
+        objWorldConfigDirectory = null;
+        strWorldConfigDirectory = null;
+        objPluginDirectory = null;
+        strPluginDirectory = null;
+        try {
+            ezfPluginFile.close();
+        } catch (IOException ex) {
+            objLogger.log(Level.SEVERE, null, ex);
+        }
+        ezfPluginFile = null;
+
+        objLogger.info("Disabled.");
+        objLogger = null;
+    }
+
+    @Override
+    public void saveDefaultConfig() {
         if (!objPluginConfig.exists()) {
             objLogger.finest("'" + strPluginConfig + "' does not exist, unpacking...");
             ezfPluginFile.unzipPathAs("config.yml", objPluginConfig);
+        }
+    }
+
+    public void loadConfig() {
+        if (!objPluginConfig.exists()) {
+            saveDefaultConfig();
+        }
+        try {
+            objConfiguration.load(objPluginConfig);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidConfigurationException ex) {
+            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void saveConfig() {
+        try {
+            objConfiguration.save(objPluginConfig);
+        } catch (IOException ex) {
+            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -116,6 +166,19 @@ public class Inception
             return Logger.getLogger(Inception.class.getName());
         }
     }
+    
+    public void loadWorlds() {
+        //Create WorldHandler's for existing configuration files, if the world exists.
+        for(File file : objWorldConfigDirectory.listFiles(new YMLFilenameFilter())) {
+            String _WorldName = file.getName().substring(0,file.getName().indexOf("."));
+            World _World = getServer().getWorld(_WorldName);
+            if (_World != null) {
+                ohmWorldHandlers.put(_World, new WorldHandler(this, _World));
+            } else {
+                objLogger.warning("Configuration file for non-existing world: " + _WorldName + ".");
+            }
+        }
+    }
 
     public EasyZipFile getEzfPluginFile() {
         return ezfPluginFile;
@@ -125,8 +188,8 @@ public class Inception
         return objWorldListener;
     }
 
-    public LinkedList<WorldHandler> getWorldHandlers() {
-        return ollWorldHandlers;
+    public HashMap<World, WorldHandler> getWorldHandlers() {
+        return ohmWorldHandlers;
     }
 
     public String getPluginConfigPath() {

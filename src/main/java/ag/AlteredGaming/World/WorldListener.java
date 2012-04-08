@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 /**
  *
@@ -21,8 +22,15 @@ public class WorldListener
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldLoad(WorldLoadEvent event) {
-        WorldHandler objWorldHandler = new WorldHandler(objPlugin, event.getWorld());
-        //Add Handler to global list
-        objPlugin.getWorldHandlers().add(objWorldHandler);
+        if (!objPlugin.getWorldHandlers().containsKey(event.getWorld())) {
+            objPlugin.getWorldHandlers().put(event.getWorld(), new WorldHandler(objPlugin, event.getWorld()));
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onWorldUnload(WorldUnloadEvent event) {
+        if (objPlugin.getWorldHandlers().containsKey(event.getWorld())) {
+            objPlugin.getWorldHandlers().remove(event.getWorld());
+        }
     }
 }
