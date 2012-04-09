@@ -189,4 +189,16 @@ public class WorldHandler {
             }
         }
     }
+
+    public World getLowerWorld() {
+        return objLowerWorld;
+    }
+
+    public World getUpperWorld() {
+        return objUpperWorld;
+    }
+
+    public World getWorld() {
+        return objWorld;
+    }
 }

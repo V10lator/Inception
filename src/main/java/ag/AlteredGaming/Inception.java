@@ -5,7 +5,10 @@ import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.String;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipException;
@@ -22,6 +25,7 @@ public class Inception
     @SuppressWarnings("NonConstantLogger")
     private Logger objLogger;
     private EasyZipFile ezfPluginFile;
+    private String prefix;
     //FPlugin files(with String path)
     private String strPluginDirectory;
     private String strWorldConfigDirectory;
@@ -40,6 +44,8 @@ public class Inception
     public void onEnable() {
         objLogger = super.getLogger();//Logger.getLogger(Inception.class.getName());
 
+        prefix = this.getDescription().getPrefix() + " ";
+        
         //Plugin files and folders
         try {
             ezfPluginFile = new EasyZipFile(this.getFile());
@@ -98,7 +104,7 @@ public class Inception
     public void onDisable() {
         //Cancel all tasks
         getServer().getScheduler().cancelTasks(this);
-        
+
         //Null all variable references to allow the GC to delete these
         ohmWorldHandlers.clear();
         ohmWorldHandlers = null;
@@ -157,22 +163,73 @@ public class Inception
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         args = util.reparseArgs(args);
 
-        if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("reload")) {
-                sender.sendMessage("[Inception] Reloading...");
-                this.loadConfig();
-                for (WorldHandler _wh : ohmWorldHandlers.values()) {
-                    _wh.loadConfig();
-                }
-                sender.sendMessage("[Inception] Reloaded!");
+        if (label.equals("inception")) {
+            return onCommand_inception(sender, command, label, args);
+        }
+
+        return false;
+    }
+
+    public boolean onCommand_inception(CommandSender sender, Command command, String label, String[] args) {
+        String[] newArgs = (args.length > 0) ? (Arrays.copyOfRange(args, 1, args.length)) : (new String[0]);
+
+        if (args.length == 0) {
+            sendMessage(sender, this.getDescription().getFullName());
+            sendMessage(sender, "Website: "+this.getDescription().getWebsite());
+            sendMessage(sender, "Licensed under Creative Commons BY-NC-SA by Michael Dirks (c) 2012");
+            return true;
+        } else {
+            if (!sender.hasPermission("inception")) {
+                sendMessage(sender, "You do not have permission to use this command.");
                 return true;
+            }
+            if (args[0].equalsIgnoreCase("reload")) {
+                return onCommand_inception_reload(sender, command, label, newArgs);
             }
         }
 
-        sender.sendMessage("Command 'inception' usage:"
-                           + "  inception reload - Reload configuration files from disk");
+        return false;
+    }
+
+    private boolean onCommand_inception_reload(CommandSender sender, Command command, String label, String[] args) {
+        String[] newArgs = (args.length > 0) ? (Arrays.copyOfRange(args, 1, args.length)) : (new String[0]);
+
+        if (!sender.hasPermission("inception.reload")) {
+            sendMessage(sender, "You do not have permission to use this command.");
+            return true;
+        }
+
+        if (args.length == 0) {
+            sendMessage(sender, "Reloading plugin configuration...");
+            this.loadConfig();
+            for (WorldHandler _wh : ohmWorldHandlers.values()) {
+                sendMessage(sender, "Reloading world configuration '"+_wh.getWorld().getName()+"'...");
+                _wh.loadConfig();
+            }
+            sendMessage(sender, "Done!");
+        } else {
+            sendMessage(sender, "Usage: /inception reload");
+        }
 
         return false;
+    }
+
+    public <T> void sendMessage(final T reciever, final String msg, final Object... args) {
+        sendMessage(true, reciever, msg, args);
+    }
+
+    public <T> void sendMessage(final boolean prefix, final T reciever, final String msg, final Object... args) {
+        if (reciever != null) {
+            if (reciever instanceof List) {
+                for (Object entry : (List<?>) reciever) {
+                    sendMessage(prefix, entry, msg, args);
+                }
+            } else {
+                for (String line : String.format(msg, args).split("\n")) {
+                    util.senderFromName(reciever).sendMessage(util.colorize((prefix ? this.prefix : "") + line));
+                }
+            }
+        }
     }
 
     @Override
