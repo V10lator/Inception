@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -94,8 +95,10 @@ public class WorldHandler {
 
     public void tickEntityMoved() {
         for (Entity ent : objWorld.getEntities()) {
-            //Add configurable filter here...
             if (objUpperWorld != null) {
+                if (objWorldConfig.getBoolean("upper.entityfilter."+ent.getType().getName())) {
+                    continue;
+                }
                 if (ent.getLocation().getY() >= intUpperTeleport) {
                     Location _UpperWorldExit = new Location(objUpperWorld,
                                                             ent.getLocation().getX(),
@@ -110,6 +113,9 @@ public class WorldHandler {
                 }
             }
             if (objLowerWorld != null) {
+                if (objWorldConfig.getBoolean("lower.entityfilter."+ent.getType().getName(), false)) {
+                    continue;
+                }
                 if (ent.getLocation().getY() <= intLowerTeleport) {
                     Location _LowerWorldExit = new Location(objLowerWorld,
                                                             ent.getLocation().getX(),

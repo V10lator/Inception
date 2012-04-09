@@ -9,6 +9,50 @@ upper:
   teleport: 255
   #To what layer should we teleport entities and players?
   teleporttarget: 1
+  #Set the entities you want to don't want to allow to true
+  entityfilter:
+    #Normal entities
+    Item: false
+    XPOrb: false
+    Painting: true
+    Arrow: false
+    Snowball: false
+    Fireball: false
+    SmallFireball: false
+    ThrownEnderpearl: false
+    EyeOfEnderSignal: false
+    ThrownEXpBottle: false
+    PrimedTnt: false
+    FallingSand: false
+    Minecart: false
+    Boat: false
+    #NPCs - Aggressive
+    Creeper: false
+    Skeleton: false
+    Spider: false
+    Giant: false
+    Zombie: false
+    Slime: false
+    Ghast: false
+    PigZombie: false
+    Enderman: false
+    CaveSpider: false
+    Silverfish: false
+    Blaze: false
+    LavaSlime: false
+    EnderDragon: true
+    #NPCs - Passive
+    Pig: false
+    Sheep: false
+    Cow: false
+    Chicken: false
+    Squid: false
+    Wolf: false
+    MushroomCow: false
+    SnowMan: false
+    Ozelot: false
+    VillagerGolem: false
+    Villager: false
 lower:
   #What world should falling go to? (null or unknown world to disable falling)
   world: null
@@ -20,3 +64,47 @@ lower:
   teleport: 0
   #To what layer should we teleport entities and players?
   teleporttarget: 254
+  #Set the entities you want to don't want to allow to true
+  entityfilter:
+    #Normal entities
+    Item: false
+    XPOrb: false
+    Painting: true
+    Arrow: false
+    Snowball: false
+    Fireball: false
+    SmallFireball: false
+    ThrownEnderpearl: false
+    EyeOfEnderSignal: false
+    ThrownEXpBottle: false
+    PrimedTnt: false
+    FallingSand: false
+    Minecart: false
+    Boat: false
+    #NPCs - Aggressive
+    Creeper: false
+    Skeleton: false
+    Spider: false
+    Giant: false
+    Zombie: false
+    Slime: false
+    Ghast: false
+    PigZombie: false
+    Enderman: false
+    CaveSpider: false
+    Silverfish: false
+    Blaze: false
+    LavaSlime: false
+    EnderDragon: true
+    #NPCs - Passive
+    Pig: false
+    Sheep: false
+    Cow: false
+    Chicken: false
+    Squid: false
+    Wolf: false
+    MushroomCow: false
+    SnowMan: false
+    Ozelot: false
+    VillagerGolem: false
+    Villager: false
