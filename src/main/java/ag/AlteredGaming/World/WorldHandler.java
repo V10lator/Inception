@@ -46,7 +46,7 @@ public class WorldHandler {
     public WorldHandler(Inception objPlugin, World objWorld) {
         this.objPlugin = objPlugin;
         this.objWorld = objWorld;
-        this.objWorldConfigFile = new File(objPlugin.getWorldConfigDirectoryFile().getPath() + "\\" + objWorld.getName() + ".yml");
+        this.objWorldConfigFile = new File(objPlugin.getWorldConfigDirectoryFile().getPath() + "/" + objWorld.getName() + ".yml");
         this.objWorldConfig = new YamlConfiguration();
 
         //Check if we need to generate default files and generate them
