@@ -5,7 +5,7 @@ version: 0.0.6
 author: Xaymar
 website: http://alteredgaming.de/
 main: ag.AlteredGaming.Inception
-prefix: "[Inception]"
+prefix: "Inception"
 # Plugin needs to load on startup to catch all worlds via Events
 load: STARTUP
 ## }
