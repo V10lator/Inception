@@ -9,6 +9,10 @@ upper:
   teleport: 255
   #To what layer should we teleport entities and players?
   teleporttarget: 1
+  #Should we preserve velocity?
+  preserveentityvelocity: true
+  #Should we preserve distance fallen?
+  preserveentityfalldistance: true
   #Set the entities you want to don't want to allow to true
   entityfilter:
     #Normal entities
@@ -64,6 +68,10 @@ lower:
   teleport: 0
   #To what layer should we teleport entities and players?
   teleporttarget: 254
+  #Should we preserve velocity?
+  preserveentityvelocity: true
+  #Should we preserve distance fallen?
+  preserveentityfalldistance: true
   #Set the entities you want to don't want to allow to true
   entityfilter:
     #Normal entities
