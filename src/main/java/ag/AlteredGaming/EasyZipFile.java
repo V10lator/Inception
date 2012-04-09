@@ -60,9 +60,8 @@ public class EasyZipFile {
 
     public File unzipPath(String path, String toPath) {
         ZipEntry objThePath = findPath(path);
-        File objExtractedPath = null;
         if (objThePath != null) {
-            objExtractedPath = new File(toPath + "/" + objThePath.getName());
+            File objExtractedPath = new File(toPath + "/" + objThePath.getName());
 
             if (!objThePath.isDirectory()) {
                 if (objExtractedPath.isFile()) {
