@@ -58,9 +58,9 @@ public class Inception
         }
         strPluginDirectory = this.getDataFolder().getPath();
         objPluginDirectory = new File(strPluginDirectory);
-        strWorldConfigDirectory = strPluginDirectory + "\\per-world\\";
+        strWorldConfigDirectory = strPluginDirectory + "/per-world/";
         objWorldConfigDirectory = new File(strWorldConfigDirectory);
-        strPluginConfig = strPluginDirectory + "\\config.yml";
+        strPluginConfig = strPluginDirectory + "/config.yml";
         objPluginConfig = new File(strPluginConfig);
 
         /*
