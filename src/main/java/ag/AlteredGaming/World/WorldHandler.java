@@ -26,6 +26,7 @@ public class WorldHandler {
     private World objWorld;
     private World objUpperWorld;
     private int intUpperOverlapStart;
+    private int intUpperOverlapTarget;
     private int intUpperOverlap;
     private int intUpperTeleport;
     private int intUpperTeleportTarget;
@@ -34,6 +35,7 @@ public class WorldHandler {
     private EnumMap<EntityType, Boolean> ohmUpperEntityFilter;
     private World objLowerWorld;
     private int intLowerOverlapStart;
+    private int intLowerOverlapTarget;
     private int intLowerOverlap;
     private int intLowerTeleport;
     private int intLowerTeleportTarget;
@@ -72,29 +74,31 @@ public class WorldHandler {
         try {
             objWorldConfig.load(objWorldConfigFile);
 
-            objUpperWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("upper.world", ""));
-            intUpperOverlapStart = objWorldConfig.getInt("upper.overlapstart", 0);
-            intUpperOverlap = objWorldConfig.getInt("upper.overlap", 0);
-            intUpperTeleport = objWorldConfig.getInt("upper.teleport", 255);
-            intUpperTeleportTarget = objWorldConfig.getInt("upper.teleporttarget", 0);
-            bolUpperPreserveEntityVelocity = objWorldConfig.getBoolean("upper.preserveentityvelocity", true);
-            bolUpperPreserveEntityFallDistance = objWorldConfig.getBoolean("upper.preserveentityfalldistance", true);
+            objUpperWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Upper.World", ""));
+            intUpperOverlapStart = objWorldConfig.getInt("Upper.OverlapStart", 255);
+            intUpperOverlapTarget = objWorldConfig.getInt("Upper.OverlapTarget", 0);
+            intUpperOverlap = objWorldConfig.getInt("Upper.Overlap", 0);
+            intUpperTeleport = objWorldConfig.getInt("Upper.Teleport", 255);
+            intUpperTeleportTarget = objWorldConfig.getInt("Upper.TeleportTarget", 1);
+            bolUpperPreserveEntityVelocity = objWorldConfig.getBoolean("Upper.PreserveEntityVelocity", true);
+            bolUpperPreserveEntityFallDistance = objWorldConfig.getBoolean("Upper.PreserveEntityFallDistance", true);
             ohmUpperEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                ohmUpperEntityFilter.put(et, objWorldConfig.getBoolean("upper.entityfilter." + et.getName(), false));
+                ohmUpperEntityFilter.put(et, objWorldConfig.getBoolean("Upper.EntityFilter." + et.getName(), false));
             }
-            objLowerWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("lower.world", ""));
-            intLowerOverlapStart = objWorldConfig.getInt("lower.overlapstart", 255);
-            intLowerOverlap = objWorldConfig.getInt("lower.overlap", 0);
-            intLowerTeleport = objWorldConfig.getInt("lower.teleport", 0);
-            intLowerTeleportTarget = objWorldConfig.getInt("lower.teleporttarget", 255);
-            bolLowerPreserveEntityVelocity = objWorldConfig.getBoolean("lower.preserveentityvelocity", true);
-            bolLowerPreserveEntityFallDistance = objWorldConfig.getBoolean("lower.preserveentityfalldistance", true);
+            
+            objLowerWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Lower.World", ""));
+            intLowerOverlapStart = objWorldConfig.getInt("Lower.OverlapStart", 0);
+            intLowerOverlapTarget = objWorldConfig.getInt("Lower.OverlapTarget", 255);
+            intLowerOverlap = objWorldConfig.getInt("Lower.Overlap", 0);
+            intLowerTeleport = objWorldConfig.getInt("Lower.Teleport", 255);
+            intLowerTeleportTarget = objWorldConfig.getInt("Lower.TeleportTarget", 1);
+            bolLowerPreserveEntityVelocity = objWorldConfig.getBoolean("Lower.PreserveEntityVelocity", true);
+            bolLowerPreserveEntityFallDistance = objWorldConfig.getBoolean("Lower.PreserveEntityFallDistance", true);
             ohmLowerEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                ohmLowerEntityFilter.put(et, objWorldConfig.getBoolean("lower.entityfilter." + et.getName(), false));
+                ohmLowerEntityFilter.put(et, objWorldConfig.getBoolean("Lower.EntityFilter." + et.getName(), false));
             }
-
         } catch (FileNotFoundException ex) {
             objPlugin.getLogger().log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -113,76 +117,68 @@ public class WorldHandler {
     }
 
     public void tickEntityMoved() {
-        Vector _EntityVelocity = null;
-        float _EntityDistanceFallen = 0.0f;
         for (Entity ent : objWorld.getEntities()) {
-            if (objUpperWorld != null) {
-                if (ohmUpperEntityFilter.get(ent.getType()) == true) {
-                    continue;
-                }
-                if (ent.getLocation().getY() >= intUpperTeleport) {
-                    if (bolUpperPreserveEntityVelocity) {
-                        _EntityVelocity = ent.getVelocity();
-                    }
-                    if (bolUpperPreserveEntityFallDistance) {
-                        _EntityDistanceFallen = ent.getFallDistance();
-                    }
+            Location _EntityLocation = ent.getLocation();
+            Vector _EntityVelocity = ent.getVelocity();
+            float _EntityDistanceFallen = ent.getFallDistance();
 
-                    Location _UpperWorldExit = new Location(objUpperWorld,
-                                                            ent.getLocation().getX(),
-                                                            intUpperTeleportTarget - (ent.getLocation().getY() - intUpperTeleport),
-                                                            ent.getLocation().getZ());
-                    _UpperWorldExit.setPitch(ent.getLocation().getPitch());
-                    _UpperWorldExit.setYaw(ent.getLocation().getYaw());
-                    /*
-                     * Figure out a better way to do this! TODO
-                     * //Make space for the entity to stand in.
-                     * objUpperWorld.getBlockAt(_UpperWorldExit).setType(Material.AIR);
-                     * objUpperWorld.getBlockAt(_UpperWorldExit.add(0, 1,
-                     * 0)).setType(Material.AIR);
-                     */
-                    ent.teleport(_UpperWorldExit);
-
-                    if (bolUpperPreserveEntityVelocity) {
-                        ent.setVelocity(_EntityVelocity);
-                    }
-                    if (bolUpperPreserveEntityFallDistance) {
-                        ent.setFallDistance(_EntityDistanceFallen);
-                    }
-                }
+            if (objPlugin.doPredictPosition()) {
+                //Advance the entites position by their velocity * objPlugin.getDelayedTicks().
+                _EntityLocation.setX(_EntityLocation.getX() + _EntityVelocity.getX() * objPlugin.getDelayedTicks());
+                _EntityLocation.setY(_EntityLocation.getY() + _EntityVelocity.getY() * objPlugin.getDelayedTicks());
+                _EntityLocation.setZ(_EntityLocation.getZ() + _EntityVelocity.getZ() * objPlugin.getDelayedTicks());
             }
-            if (objLowerWorld != null) {
-                if (ohmLowerEntityFilter.get(ent.getType()) == true) {
-                    continue;
+
+            //1. Step: Check if we can skip this entity. Helps save CPU time.
+            if ((objUpperWorld == null) && (objLowerWorld == null)) {
+                continue;
+            } else {
+                if (objUpperWorld != null) {
+                    if (ohmUpperEntityFilter.get(ent.getType()) == true) {
+                        continue;
+                    }
+                    if (_EntityLocation.getY() < intUpperTeleport) {
+                        continue;
+                    } else {
+                        //2. Step: We can't skip it so let's just do what is needed
+                        Location _UpperWorldExit = new Location(objUpperWorld,
+                                                                ent.getLocation().getX(),
+                                                                intUpperTeleportTarget - (ent.getLocation().getY() - intUpperTeleport),
+                                                                ent.getLocation().getZ());
+                        _UpperWorldExit.setPitch(ent.getLocation().getPitch());
+                        _UpperWorldExit.setYaw(ent.getLocation().getYaw());
+                        ent.teleport(_UpperWorldExit);
+
+                        if (bolUpperPreserveEntityVelocity) {
+                            ent.setVelocity(_EntityVelocity);
+                        }
+                        if (bolUpperPreserveEntityFallDistance) {
+                            ent.setFallDistance(_EntityDistanceFallen);
+                        }
+                    }
                 }
-                if (ent.getLocation().getY() <= intLowerTeleport) {
-                    if (bolLowerPreserveEntityVelocity) {
-                        _EntityVelocity = ent.getVelocity();
+                if (objLowerWorld != null) {
+                    if (ohmLowerEntityFilter.get(ent.getType()) == true) {
+                        continue;
                     }
-                    if (bolLowerPreserveEntityFallDistance) {
-                        _EntityDistanceFallen = ent.getFallDistance();
-                    }
+                    if (_EntityLocation.getY() > intLowerTeleport) {
+                        continue;
+                    } else {
+                        //2. Step: We can't skip it so let's just do what is needed
+                        Location _LowerWorldExit = new Location(objLowerWorld,
+                                                                ent.getLocation().getX(),
+                                                                intLowerTeleportTarget + (ent.getLocation().getY() - intLowerTeleport),
+                                                                ent.getLocation().getZ());
+                        _LowerWorldExit.setPitch(ent.getLocation().getPitch());
+                        _LowerWorldExit.setYaw(ent.getLocation().getYaw());
+                        ent.teleport(_LowerWorldExit);
 
-                    Location _LowerWorldExit = new Location(objLowerWorld,
-                                                            ent.getLocation().getX(),
-                                                            intLowerTeleportTarget + (ent.getLocation().getY() - intLowerTeleport),
-                                                            ent.getLocation().getZ());
-                    _LowerWorldExit.setPitch(ent.getLocation().getPitch());
-                    _LowerWorldExit.setYaw(ent.getLocation().getYaw());
-                    /*
-                     * Figure out a better way to do this! TODO
-                     * //Make space for the entity to stand in.
-                     * objLowerWorld.getBlockAt(_LowerWorldExit).setType(Material.AIR);
-                     * objLowerWorld.getBlockAt(_LowerWorldExit.add(0, 1,
-                     * 0)).setType(Material.AIR);
-                     */
-                    ent.teleport(_LowerWorldExit);
-
-                    if (bolLowerPreserveEntityVelocity) {
-                        ent.setVelocity(_EntityVelocity);
-                    }
-                    if (bolLowerPreserveEntityFallDistance) {
-                        ent.setFallDistance(_EntityDistanceFallen);
+                        if (bolLowerPreserveEntityVelocity) {
+                            ent.setVelocity(_EntityVelocity);
+                        }
+                        if (bolLowerPreserveEntityFallDistance) {
+                            ent.setFallDistance(_EntityDistanceFallen);
+                        }
                     }
                 }
             }

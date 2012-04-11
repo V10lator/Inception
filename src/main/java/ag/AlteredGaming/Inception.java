@@ -35,6 +35,8 @@ public class Inception
     private File objPluginConfig;
     //Configuration Stuff
     private YamlConfiguration objConfiguration;
+    private boolean bolDoPredictPosition;
+    private int intDelayedTicks;
     //WorldListener to catch world events
     private WorldListener objWorldListener;
     //Holds all WorldHandlers that exist
@@ -141,6 +143,8 @@ public class Inception
         }
         try {
             objConfiguration.load(objPluginConfig);
+            bolDoPredictPosition = objConfiguration.getBoolean("Entities.DoPredictPosition", true);
+            intDelayedTicks = objConfiguration.getInt("Entites.DelayedTicks", 2);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -275,5 +279,13 @@ public class Inception
 
     public File getWorldConfigDirectoryFile() {
         return objWorldConfigDirectory;
+    }
+
+    public boolean doPredictPosition() {
+        return bolDoPredictPosition;
+    }
+    
+    public int getDelayedTicks() {
+        return intDelayedTicks;
     }
 }
