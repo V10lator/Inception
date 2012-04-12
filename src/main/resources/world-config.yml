@@ -1,5 +1,5 @@
 World:
-  #How many ticks are between each teleport check? Lowering this increases server load but makes teleporting smoother
+  #How many ticks are between each teleport check? Lowering this increases server load but makes teleporting smoother. Set to 0 to disable.
   DelayedTicks: 2
   #Should we predict entity positions? This will make teleporting a bit smoother, but can cause early unwanted teleportation. Predicted positions are <DelayedTicks> ahead of the current situation.
   DoPredictPosition: true

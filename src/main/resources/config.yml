@@ -1,7 +1,7 @@
 #These are defaults that will be used when no value is given in a per-world config.
 Default:
   World:
-    #How many ticks are between each teleport check? Lowering this increases server load but makes teleporting smoother
+    #How many ticks are between each teleport check? Lowering this increases server load but makes teleporting smoother. Set to 0 to disable.
     DelayedTicks: 2
     #Should we predict entity positions? This will make teleporting a bit smoother, but can cause early unwanted teleportation. Predicted positions are <DelayedTicks> ahead of the current situation.
     DoPredictPosition: true
@@ -18,11 +18,11 @@ Default:
     Teleport: 255
     #To what layer should we teleport entities and players?
     TeleportTarget: 1
-    #Should we preserve velocity?
+    #Should teleporting preserve the entity's velocity?
     PreserveEntityVelocity: true
-    #Should we preserve distance fallen?
+    #Should teleporting preserve the entity's fall distance?
     PreserveEntityFallDistance: true
-    #Set the entities you want to don't want to allow to true
+    #Set the entities you want to don't want to allow to true.
     EntityFilter:
       #Normal entities
       Item: false
