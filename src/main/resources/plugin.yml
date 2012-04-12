@@ -19,3 +19,6 @@ permissions:
   inception.reload:
     description: Allow usage of the 'inception reload' command.
     default: op
+  inception.reinit:
+    description: Allow usage of the 'inception reinit' command.
+    default: op
