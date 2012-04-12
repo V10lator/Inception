@@ -1,3 +1,4 @@
+#These are defaults that will be used when no value is given in a per-world config.
 Default:
   World:
     #How many ticks are between each teleport check? Lowering this increases server load but makes teleporting smoother
