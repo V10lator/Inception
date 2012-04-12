@@ -5,8 +5,8 @@ import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.String;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,6 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Inception
@@ -37,6 +38,24 @@ public class Inception
     private YamlConfiguration objConfiguration;
     private boolean bolDoPredictPosition;
     private int intDelayedTicks;
+    private String strUpperWorld;
+    private int intUpperOverlapStart;
+    private int intUpperOverlapTarget;
+    private int intUpperOverlap;
+    private int intUpperTeleport;
+    private int intUpperTeleportTarget;
+    private boolean bolUpperPreserveEntityVelocity;
+    private boolean bolUpperPreserveEntityFallDistance;
+    private EnumMap<EntityType, Boolean> ohmUpperEntityFilter;
+    private String strLowerWorld;
+    private int intLowerOverlapStart;
+    private int intLowerOverlapTarget;
+    private int intLowerOverlap;
+    private int intLowerTeleport;
+    private int intLowerTeleportTarget;
+    private boolean bolLowerPreserveEntityVelocity;
+    private boolean bolLowerPreserveEntityFallDistance;
+    private EnumMap<EntityType, Boolean> ohmLowerEntityFilter;
     //WorldListener to catch world events
     private WorldListener objWorldListener;
     //Holds all WorldHandlers that exist
@@ -47,7 +66,7 @@ public class Inception
         objLogger = super.getLogger();//Logger.getLogger(Inception.class.getName());
 
         prefix = this.getDescription().getPrefix() + " ";
-        
+
         //Plugin files and folders
         try {
             ezfPluginFile = new EasyZipFile(this.getFile());
@@ -143,8 +162,36 @@ public class Inception
         }
         try {
             objConfiguration.load(objPluginConfig);
-            bolDoPredictPosition = objConfiguration.getBoolean("Entities.DoPredictPosition", true);
-            intDelayedTicks = objConfiguration.getInt("Entites.DelayedTicks", 2);
+
+            bolDoPredictPosition = objConfiguration.getBoolean("Default.World.DoPredictPosition", true);
+            intDelayedTicks = objConfiguration.getInt("Default.World.DelayedTicks", 2);
+
+            strUpperWorld = objConfiguration.getString("Default.Upper.World", "");
+            intUpperOverlapStart = objConfiguration.getInt("Default.Upper.OverlapStart", 255);
+            intUpperOverlapTarget = objConfiguration.getInt("Default.Upper.OverlapTarget", 0);
+            intUpperOverlap = objConfiguration.getInt("Default.Upper.Overlap", 0);
+            intUpperTeleport = objConfiguration.getInt("Default.Upper.Teleport", 255);
+            intUpperTeleportTarget = objConfiguration.getInt("Default.Upper.TeleportTarget", 1);
+            bolUpperPreserveEntityVelocity = objConfiguration.getBoolean("Default.Upper.PreserveEntityVelocity", true);
+            bolUpperPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Upper.PreserveEntityFallDistance", true);
+            ohmUpperEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            for (EntityType et : EntityType.values()) {
+                ohmUpperEntityFilter.put(et, objConfiguration.getBoolean("Default.Upper.EntityFilter." + et.getName(), false));
+            }
+
+            strLowerWorld = objConfiguration.getString("Default.Lower.World", "");
+            intLowerOverlapStart = objConfiguration.getInt("Default.Lower.OverlapStart", 0);
+            intLowerOverlapTarget = objConfiguration.getInt("Default.Lower.OverlapTarget", 255);
+            intLowerOverlap = objConfiguration.getInt("Default.Lower.Overlap", 0);
+            intLowerTeleport = objConfiguration.getInt("Default.Lower.Teleport", 255);
+            intLowerTeleportTarget = objConfiguration.getInt("Default.Lower.TeleportTarget", 1);
+            bolLowerPreserveEntityVelocity = objConfiguration.getBoolean("Default.Lower.PreserveEntityVelocity", true);
+            bolLowerPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Lower.PreserveEntityFallDistance", true);
+            ohmLowerEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            for (EntityType et : EntityType.values()) {
+                ohmLowerEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.EntityFilter." + et.getName(), false));
+            }
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -179,7 +226,7 @@ public class Inception
 
         if (args.length == 0) {
             sendMessage(sender, this.getDescription().getFullName());
-            sendMessage(sender, "Website: "+this.getDescription().getWebsite());
+            sendMessage(sender, "Website: " + this.getDescription().getWebsite());
             sendMessage(sender, "Licensed under Creative Commons BY-NC-SA by Michael Dirks (c) 2012");
             return true;
         } else {
@@ -207,7 +254,7 @@ public class Inception
             sendMessage(sender, "Reloading plugin configuration...");
             this.loadConfig();
             for (WorldHandler _wh : ohmWorldHandlers.values()) {
-                sendMessage(sender, "Reloading world configuration '"+_wh.getWorld().getName()+"'...");
+                sendMessage(sender, "Reloading world configuration '" + _wh.getWorld().getName() + "'...");
                 _wh.loadConfig();
             }
             sendMessage(sender, "Done!");
@@ -284,8 +331,80 @@ public class Inception
     public boolean doPredictPosition() {
         return bolDoPredictPosition;
     }
-    
+
+    public boolean doPreserveLowerEntityFallDistance() {
+        return bolLowerPreserveEntityFallDistance;
+    }
+
+    public boolean doPreserveLowerEntityVelocity() {
+        return bolLowerPreserveEntityVelocity;
+    }
+
+    public boolean doPreserveUpperEntityFallDistance() {
+        return bolUpperPreserveEntityFallDistance;
+    }
+
+    public boolean doPreserveUpperEntityVelocity() {
+        return bolUpperPreserveEntityVelocity;
+    }
+
     public int getDelayedTicks() {
         return intDelayedTicks;
+    }
+
+    public int getLowerOverlap() {
+        return intLowerOverlap;
+    }
+
+    public int getLowerOverlapStart() {
+        return intLowerOverlapStart;
+    }
+
+    public int getLowerOverlapTarget() {
+        return intLowerOverlapTarget;
+    }
+
+    public int getLowerTeleport() {
+        return intLowerTeleport;
+    }
+
+    public int getLowerTeleportTarget() {
+        return intLowerTeleportTarget;
+    }
+
+    public int getUpperOverlap() {
+        return intUpperOverlap;
+    }
+
+    public int getUpperOverlapStart() {
+        return intUpperOverlapStart;
+    }
+
+    public int getUpperOverlapTarget() {
+        return intUpperOverlapTarget;
+    }
+
+    public int getUpperTeleport() {
+        return intUpperTeleport;
+    }
+
+    public int getUpperTeleportTarget() {
+        return intUpperTeleportTarget;
+    }
+
+    public String getLowerWorld() {
+        return strLowerWorld;
+    }
+
+    public String getUpperWorld() {
+        return strUpperWorld;
+    }
+
+    public EnumMap<EntityType, Boolean> getLowerEntityFilter() {
+        return ohmLowerEntityFilter;
+    }
+
+    public EnumMap<EntityType, Boolean> getUpperEntityFilter() {
+        return ohmUpperEntityFilter;
     }
 }
