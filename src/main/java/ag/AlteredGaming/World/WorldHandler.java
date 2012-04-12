@@ -102,7 +102,9 @@ public class WorldHandler {
             if (objWorldHandlerRunnable == null) {
                 objWorldHandlerRunnable = new WorldHandlerRunnable(objPlugin, this);
             }
-            if ((intDelayedTicks > 0) && ((objUpperWorld != null) || (objLowerWorld != null))) {
+            if ((intDelayedTicks > 0)
+                && (((objUpperWorld != null) && ((intUpperTeleport <= objWorld.getMaxHeight()) || (intLowerTeleport >= 0)) && ((intUpperTeleportTarget >= 0) && (intUpperTeleportTarget <= objUpperWorld.getMaxHeight())))
+                    || ((objLowerWorld != null) && ((intLowerTeleport <= objWorld.getMaxHeight()) || (intLowerTeleport >= 0)) && ((intLowerTeleportTarget >= 0) && (intLowerTeleportTarget <= objLowerWorld.getMaxHeight()))))) {
                 if (intWorldHandlerRunnableTask != -1) {
                     objPlugin.getServer().getScheduler().cancelTask(intWorldHandlerRunnableTask);
                 }
@@ -110,7 +112,8 @@ public class WorldHandler {
                 if (intWorldHandlerRunnableTask == -1) {
                     objPlugin.getLogger().warning("<" + objWorld.getName() + "> Could not register SyncRepeatingTask. Entities may not be teleported!");
                 }
-            } else {
+            }
+            if (intWorldHandlerRunnableTask == -1) {
                 objPlugin.getLogger().info("<" + objWorld.getName() + "> Teleportation disabled.");
             }
         } catch (FileNotFoundException ex) {
