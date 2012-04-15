@@ -21,29 +21,36 @@ import org.bukkit.util.Vector;
 public class WorldHandler {
 
     private Inception objPlugin;
+    private World objWorld;
+    
     private File objWorldConfigFile;
     private YamlConfiguration objWorldConfig;
-    private World objWorld;
+    private boolean bolIsEnabled;
     private boolean bolDoPredictPosition;
     private int intDelayedTicks;
     private World objUpperWorld;
-    private int intUpperOverlapStart;
-    private int intUpperOverlapTarget;
-    private int intUpperOverlap;
-    private int intUpperTeleport;
-    private int intUpperTeleportTarget;
-    private boolean bolUpperPreserveEntityVelocity;
-    private boolean bolUpperPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> ohmUpperEntityFilter;
+    private boolean bolUpperOverlapEnabled;
+    private int intUpperOverlapFrom;
+    private int intUpperOverlapTo;
+    private int intUpperOverlapLayers;
+    private boolean bolUpperTeleportEnabled;
+    private int intUpperTeleportFrom;
+    private int intUpperTeleportTo;
+    private boolean bolUpperTeleportPreserveEntityVelocity;
+    private boolean bolUpperTeleportPreserveEntityFallDistance;
+    private EnumMap<EntityType, Boolean> ohmUpperTeleportEntityFilter;
     private World objLowerWorld;
-    private int intLowerOverlapStart;
-    private int intLowerOverlapTarget;
-    private int intLowerOverlap;
-    private int intLowerTeleport;
-    private int intLowerTeleportTarget;
-    private boolean bolLowerPreserveEntityVelocity;
-    private boolean bolLowerPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> ohmLowerEntityFilter;
+    private boolean bolLowerOverlapEnabled;
+    private int intLowerOverlapFrom;
+    private int intLowerOverlapTo;
+    private int intLowerOverlapLayers;
+    private boolean bolLowerTeleportEnabled;
+    private int intLowerTeleportFrom;
+    private int intLowerTeleportTo;
+    private boolean bolLowerTeleportPreserveEntityVelocity;
+    private boolean bolLowerTeleportPreserveEntityFallDistance;
+    private EnumMap<EntityType, Boolean> ohmLowerTeleportEntityFilter;
+    
     private WorldHandlerRunnable objWorldHandlerRunnable;
     private int intWorldHandlerRunnableTask = -1;
 
@@ -69,52 +76,65 @@ public class WorldHandler {
         try {
             objWorldConfig.load(objWorldConfigFile);
 
-            bolDoPredictPosition = objWorldConfig.getBoolean("World.DoPredictPosition", objPlugin.doPredictPosition());
-            intDelayedTicks = objWorldConfig.getInt("World.DelayedTicks", objPlugin.getDelayedTicks());
+            bolIsEnabled = objWorldConfig.getBoolean("World.Enabled",                                                           objPlugin.bolDefaultIsEnabled());
+            bolDoPredictPosition = objWorldConfig.getBoolean("World.DoPredictPosition",                                         objPlugin.bolDefaultDoPredictPosition());
+            intDelayedTicks = objWorldConfig.getInt("World.DelayedTicks",                                                       objPlugin.intDefaultDelayedTicks());
 
-            objUpperWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Upper.World", objPlugin.getUpperWorld()));
-            intUpperOverlapStart = objWorldConfig.getInt("Upper.OverlapStart", objPlugin.getUpperOverlapStart());
-            intUpperOverlapTarget = objWorldConfig.getInt("Upper.OverlapTarget", objPlugin.getUpperOverlapTarget());
-            intUpperOverlap = objWorldConfig.getInt("Upper.Overlap", objPlugin.getUpperOverlap());
-            intUpperTeleport = objWorldConfig.getInt("Upper.Teleport", objPlugin.getUpperTeleport());
-            intUpperTeleportTarget = objWorldConfig.getInt("Upper.TeleportTarget", objPlugin.getUpperTeleportTarget());
-            bolUpperPreserveEntityVelocity = objWorldConfig.getBoolean("Upper.PreserveEntityVelocity", objPlugin.doPreserveUpperEntityVelocity());
-            bolUpperPreserveEntityFallDistance = objWorldConfig.getBoolean("Upper.PreserveEntityFallDistance", objPlugin.doPreserveUpperEntityFallDistance());
-            ohmUpperEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            if (bolIsEnabled == true) {
+            
+            objUpperWorld           = objPlugin.getServer().getWorld(objWorldConfig.getString("Upper.World",                    objPlugin.strDefaultUpperWorld()));
+            bolUpperOverlapEnabled  = objWorldConfig.getBoolean("Upper.Overlap.Enabled",                                        objPlugin.bolDefaultUpperOverlapEnabled());
+            intUpperOverlapFrom     = objWorldConfig.getInt("Upper.Overlap.From",                                               objPlugin.intDefaultUpperOverlapFrom());
+            intUpperOverlapTo       = objWorldConfig.getInt("Upper.Overlap.To",                                                 objPlugin.intDefaultUpperOverlapTo());
+            intUpperOverlapLayers   = objWorldConfig.getInt("Upper.Overlap.Layers",                                             objPlugin.intDefaultUpperOverlapLayers());
+            bolUpperTeleportEnabled = objWorldConfig.getBoolean("Upper.Teleport.Enabled",                                       objPlugin.bolDefaultUpperTeleportEnabled());
+            intUpperTeleportFrom    = objWorldConfig.getInt("Upper.Teleport.From",                                              objPlugin.intDefaultUpperTeleportFrom());
+            intUpperTeleportTo      = objWorldConfig.getInt("Upper.Teleport.To",                                                objPlugin.intDefaultUpperTeleportTo());
+            bolUpperTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Upper.PreserveEntityVelocity",                  objPlugin.bolDefaultUpperTeleportPreserveEntityVelocity());
+            bolUpperTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Upper.PreserveEntityFallDistance",          objPlugin.bolDefaultUpperTeleportPreserveEntityFallDistance());
+            ohmUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                ohmUpperEntityFilter.put(et, objWorldConfig.getBoolean("Upper.EntityFilter." + et.getName(), objPlugin.getUpperEntityFilter().get(et)));
+                ohmUpperTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Upper.Teleport.EntityFilter." + et.getName(),   objPlugin.ohmDefaultUpperTeleportEntityFilter().get(et)));
             }
 
-            objLowerWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Lower.World", objPlugin.getLowerWorld()));
-            intLowerOverlapStart = objWorldConfig.getInt("Lower.OverlapStart", objPlugin.getLowerOverlapStart());
-            intLowerOverlapTarget = objWorldConfig.getInt("Lower.OverlapTarget", objPlugin.getLowerOverlapTarget());
-            intLowerOverlap = objWorldConfig.getInt("Lower.Overlap", objPlugin.getLowerOverlap());
-            intLowerTeleport = objWorldConfig.getInt("Lower.Teleport", objPlugin.getLowerTeleport());
-            intLowerTeleportTarget = objWorldConfig.getInt("Lower.TeleportTarget", objPlugin.getLowerTeleportTarget());
-            bolLowerPreserveEntityVelocity = objWorldConfig.getBoolean("Lower.PreserveEntityVelocity", objPlugin.doPreserveLowerEntityVelocity());
-            bolLowerPreserveEntityFallDistance = objWorldConfig.getBoolean("Lower.PreserveEntityFallDistance", objPlugin.doPreserveLowerEntityFallDistance());
-            ohmLowerEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            objLowerWorld           = objPlugin.getServer().getWorld(objWorldConfig.getString("Lower.World",                    objPlugin.strDefaultLowerWorld()));
+            bolLowerOverlapEnabled  = objWorldConfig.getBoolean("Lower.Overlap.Enabled",                                        objPlugin.bolDefaultLowerOverlapEnabled());
+            intLowerOverlapFrom     = objWorldConfig.getInt("Lower.Overlap.From",                                               objPlugin.intDefaultLowerOverlapFrom());
+            intLowerOverlapTo       = objWorldConfig.getInt("Lower.Overlap.To",                                                 objPlugin.intDefaultLowerOverlapTo());
+            intLowerOverlapLayers   = objWorldConfig.getInt("Lower.Overlap.Layers",                                             objPlugin.intDefaultLowerOverlapLayers());
+            bolLowerTeleportEnabled = objWorldConfig.getBoolean("Lower.Teleport.Enabled",                                       objPlugin.bolDefaultLowerTeleportEnabled());
+            intLowerTeleportFrom    = objWorldConfig.getInt("Lower.Teleport.From",                                              objPlugin.intDefaultLowerTeleportFrom());
+            intLowerTeleportTo      = objWorldConfig.getInt("Lower.Teleport.To",                                                objPlugin.intDefaultLowerTeleportTo());
+            bolLowerTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Lower.PreserveEntityVelocity",                  objPlugin.bolDefaultLowerTeleportPreserveEntityVelocity());
+            bolLowerTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Lower.PreserveEntityFallDistance",          objPlugin.bolDefaultLowerTeleportPreserveEntityFallDistance());
+            ohmLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                ohmLowerEntityFilter.put(et, objWorldConfig.getBoolean("Lower.EntityFilter." + et.getName(), objPlugin.getLowerEntityFilter().get(et)));
+                ohmLowerTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Lower.Teleport.EntityFilter." + et.getName(),   objPlugin.ohmDefaultLowerTeleportEntityFilter().get(et)));
             }
-
             //This creates a runnable that calls code in this class
             if (objWorldHandlerRunnable == null) {
                 objWorldHandlerRunnable = new WorldHandlerRunnable(objPlugin, this);
             }
             if ((intDelayedTicks > 0)
-                && (((objUpperWorld != null) && ((intUpperTeleport <= objWorld.getMaxHeight()) || (intLowerTeleport >= 0)) && ((intUpperTeleportTarget >= 0) && (intUpperTeleportTarget <= objUpperWorld.getMaxHeight())))
-                    || ((objLowerWorld != null) && ((intLowerTeleport <= objWorld.getMaxHeight()) || (intLowerTeleport >= 0)) && ((intLowerTeleportTarget >= 0) && (intLowerTeleportTarget <= objLowerWorld.getMaxHeight()))))) {
+                && (((objUpperWorld != null) && (bolUpperTeleportEnabled == true))
+                    || ((objLowerWorld != null) && (bolLowerTeleportEnabled == true)))) {
                 if (intWorldHandlerRunnableTask != -1) {
                     objPlugin.getServer().getScheduler().cancelTask(intWorldHandlerRunnableTask);
                 }
                 intWorldHandlerRunnableTask = objPlugin.getServer().getScheduler().scheduleSyncRepeatingTask(objPlugin, objWorldHandlerRunnable, intDelayedTicks, intDelayedTicks);
                 if (intWorldHandlerRunnableTask == -1) {
-                    objPlugin.getLogger().warning("<" + objWorld.getName() + "> Could not register SyncRepeatingTask. Entities may not be teleported!");
+                    objPlugin.getLogger().warning("<" + objWorld.getName() + "> Could not register synchronized repeating task. Entities can not be teleported!");
                 }
             }
             if (intWorldHandlerRunnableTask == -1) {
                 objPlugin.getLogger().info("<" + objWorld.getName() + "> Teleportation disabled.");
+            }
+            } else {
+                if (intWorldHandlerRunnableTask != -1) {
+                    objPlugin.getServer().getScheduler().cancelTask(intWorldHandlerRunnableTask);
+                    intWorldHandlerRunnableTask = -1;
+                }
+                objPlugin.getLogger().info("<" + objWorld.getName() + "> WorldHandler disabled.");
             }
         } catch (FileNotFoundException ex) {
             objPlugin.getLogger().log(Level.SEVERE, null, ex);
@@ -139,11 +159,11 @@ public class WorldHandler {
             Vector _EntityVelocity = ent.getVelocity();
             float _EntityDistanceFallen = ent.getFallDistance();
 
-            if (objPlugin.doPredictPosition()) {
+            if (bolDoPredictPosition) {
                 //Advance the entites position by their velocity * objPlugin.getDelayedTicks().
-                _EntityLocation.setX(_EntityLocation.getX() + _EntityVelocity.getX() * objPlugin.getDelayedTicks());
-                _EntityLocation.setY(_EntityLocation.getY() + _EntityVelocity.getY() * objPlugin.getDelayedTicks());
-                _EntityLocation.setZ(_EntityLocation.getZ() + _EntityVelocity.getZ() * objPlugin.getDelayedTicks());
+                _EntityLocation.setX(_EntityLocation.getX() + _EntityVelocity.getX() * intDelayedTicks);
+                _EntityLocation.setY(_EntityLocation.getY() + _EntityVelocity.getY() * intDelayedTicks);
+                _EntityLocation.setZ(_EntityLocation.getZ() + _EntityVelocity.getZ() * intDelayedTicks);
             }
 
             //1. Step: Check if we can skip this entity. Helps save CPU time.
@@ -151,63 +171,69 @@ public class WorldHandler {
                 continue;
             } else {
                 if (objUpperWorld != null) {
-                    if (ohmUpperEntityFilter.get(ent.getType()) == true) {
+                    if (ohmUpperTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
-                    if (_EntityLocation.getY() < intUpperTeleport) {
+                    if (_EntityLocation.getY() < intUpperTeleportFrom) {
                         continue;
                     } else {
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _UpperWorldExit = new Location(objUpperWorld,
                                                                 ent.getLocation().getX(),
-                                                                intUpperTeleportTarget - (ent.getLocation().getY() - intUpperTeleport),
+                                                                intUpperTeleportTo - (ent.getLocation().getY() - intUpperTeleportFrom),
                                                                 ent.getLocation().getZ());
                         _UpperWorldExit.setPitch(ent.getLocation().getPitch());
                         _UpperWorldExit.setYaw(ent.getLocation().getYaw());
+                        //ToDo: Add handling for non-Player entities.
+                        //  Bukkit does not have the code to teleport entities other than Players into other worlds,
+                        //  so we actually have to recreate the entity in another world.
                         ent.teleport(_UpperWorldExit);
 
-                        if (bolUpperPreserveEntityVelocity) {
+                        if (bolUpperTeleportPreserveEntityVelocity) {
                             ent.setVelocity(_EntityVelocity);
+                        } else {
+                            ent.setVelocity(new Vector(0,0,0));
                         }
-                        if (bolUpperPreserveEntityFallDistance) {
+                        if (bolUpperTeleportPreserveEntityFallDistance) {
                             ent.setFallDistance(_EntityDistanceFallen);
+                        } else {
+                            ent.setFallDistance(0);
                         }
                     }
                 }
                 if (objLowerWorld != null) {
-                    if (ohmLowerEntityFilter.get(ent.getType()) == true) {
+                    if (ohmLowerTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
-                    if (_EntityLocation.getY() > intLowerTeleport) {
+                    if (_EntityLocation.getY() < intLowerTeleportFrom) {
                         continue;
                     } else {
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _LowerWorldExit = new Location(objLowerWorld,
                                                                 ent.getLocation().getX(),
-                                                                intLowerTeleportTarget + (ent.getLocation().getY() - intLowerTeleport),
+                                                                intLowerTeleportTo - (ent.getLocation().getY() - intLowerTeleportFrom),
                                                                 ent.getLocation().getZ());
                         _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                         _LowerWorldExit.setYaw(ent.getLocation().getYaw());
+                        //ToDo: Add handling for non-Player entities.
+                        //  Bukkit does not have the code to teleport entities other than Players into other worlds,
+                        //  so we actually have to recreate the entity in another world.
                         ent.teleport(_LowerWorldExit);
 
-                        if (bolLowerPreserveEntityVelocity) {
+                        if (bolLowerTeleportPreserveEntityVelocity) {
                             ent.setVelocity(_EntityVelocity);
+                        } else {
+                            ent.setVelocity(new Vector(0,0,0));
                         }
-                        if (bolLowerPreserveEntityFallDistance) {
+                        if (bolLowerTeleportPreserveEntityFallDistance) {
                             ent.setFallDistance(_EntityDistanceFallen);
+                        } else {
+                            ent.setFallDistance(0);
                         }
                     }
                 }
             }
         }
-    }
-
-    public World getLowerWorld() {
-        return objLowerWorld;
-    }
-
-    public World getUpperWorld() {
-        return objUpperWorld;
     }
 
     public World getWorld() {
