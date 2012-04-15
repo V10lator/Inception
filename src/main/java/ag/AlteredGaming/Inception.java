@@ -27,7 +27,7 @@ public class Inception
     private Logger objLogger;
     private EasyZipFile ezfPluginFile;
     private String prefix;
-    //FPlugin files(with String path)
+    //Plugin files(with String path)
     private String strPluginDirectory;
     private String strWorldConfigDirectory;
     private String strPluginConfig;
@@ -36,26 +36,31 @@ public class Inception
     private File objPluginConfig;
     //Configuration Stuff
     private YamlConfiguration objConfiguration;
-    private boolean bolDoPredictPosition;
-    private int intDelayedTicks;
-    private String strUpperWorld;
-    private int intUpperOverlapStart;
-    private int intUpperOverlapTarget;
-    private int intUpperOverlap;
-    private int intUpperTeleport;
-    private int intUpperTeleportTarget;
-    private boolean bolUpperPreserveEntityVelocity;
-    private boolean bolUpperPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> ohmUpperEntityFilter;
-    private String strLowerWorld;
-    private int intLowerOverlapStart;
-    private int intLowerOverlapTarget;
-    private int intLowerOverlap;
-    private int intLowerTeleport;
-    private int intLowerTeleportTarget;
-    private boolean bolLowerPreserveEntityVelocity;
-    private boolean bolLowerPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> ohmLowerEntityFilter;
+    private boolean bolDefaultIsEnabled;
+    private boolean bolDefaultDoPredictPosition;
+    private int intDefaultDelayedTicks;
+    private String strDefaultUpperWorld;
+    private boolean bolDefaultUpperOverlapEnabled;
+    private int intDefaultUpperOverlapFrom;
+    private int intDefaultUpperOverlapTo;
+    private int intDefaultUpperOverlapLayers;
+    private boolean bolDefaultUpperTeleportEnabled;
+    private int intDefaultUpperTeleportFrom;
+    private int intDefaultUpperTeleportTo;
+    private boolean bolDefaultUpperTeleportPreserveEntityVelocity;
+    private boolean bolDefaultUpperTeleportPreserveEntityFallDistance;
+    private EnumMap<EntityType, Boolean> ohmDefaultUpperTeleportEntityFilter;
+    private String strDefaultLowerWorld;
+    private boolean bolDefaultLowerOverlapEnabled;
+    private int intDefaultLowerOverlapFrom;
+    private int intDefaultLowerOverlapTo;
+    private int intDefaultLowerOverlapLayers;
+    private boolean bolDefaultLowerTeleportEnabled;
+    private int intDefaultLowerTeleportFrom;
+    private int intDefaultLowerTeleportTo;
+    private boolean bolDefaultLowerTeleportPreserveEntityVelocity;
+    private boolean bolDefaultLowerTeleportPreserveEntityFallDistance;
+    private EnumMap<EntityType, Boolean> ohmDefaultLowerTeleportEntityFilter;
     //WorldListener to catch world events
     private WorldListener objWorldListener;
     //Holds all WorldHandlers that exist
@@ -163,35 +168,39 @@ public class Inception
         try {
             objConfiguration.load(objPluginConfig);
 
-            bolDoPredictPosition = objConfiguration.getBoolean("Default.World.DoPredictPosition", true);
-            intDelayedTicks = objConfiguration.getInt("Default.World.DelayedTicks", 2);
+            bolDefaultIsEnabled = objConfiguration.getBoolean("Default.World.Enabled", true);
+            bolDefaultDoPredictPosition = objConfiguration.getBoolean("Default.World.DoPredictPosition", true);
+            intDefaultDelayedTicks = objConfiguration.getInt("Default.World.DelayedTicks", 1);
 
-            strUpperWorld = objConfiguration.getString("Default.Upper.World", "");
-            intUpperOverlapStart = objConfiguration.getInt("Default.Upper.OverlapStart", 255);
-            intUpperOverlapTarget = objConfiguration.getInt("Default.Upper.OverlapTarget", 0);
-            intUpperOverlap = objConfiguration.getInt("Default.Upper.Overlap", 0);
-            intUpperTeleport = objConfiguration.getInt("Default.Upper.Teleport", 255);
-            intUpperTeleportTarget = objConfiguration.getInt("Default.Upper.TeleportTarget", 1);
-            bolUpperPreserveEntityVelocity = objConfiguration.getBoolean("Default.Upper.PreserveEntityVelocity", true);
-            bolUpperPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Upper.PreserveEntityFallDistance", true);
-            ohmUpperEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            strDefaultUpperWorld = objConfiguration.getString("Default.Upper.World", "");
+            bolDefaultUpperOverlapEnabled = objConfiguration.getBoolean("Default.Upper.Overlap.Enabled", false);
+            intDefaultUpperOverlapFrom = objConfiguration.getInt("Default.Upper.Overlap.From", 0);
+            intDefaultUpperOverlapTo = objConfiguration.getInt("Default.Upper.Overlap.To", 255);
+            intDefaultUpperOverlapLayers = objConfiguration.getInt("Default.Upper.Overlap.Layers", 0);
+            bolDefaultUpperTeleportEnabled = objConfiguration.getBoolean("Default.Upper.Teleport.Enabled", false);
+            intDefaultUpperTeleportFrom = objConfiguration.getInt("Default.Upper.Teleport.From", 255);
+            intDefaultUpperTeleportTo = objConfiguration.getInt("Default.Upper.Teleport.To", 1);
+            bolDefaultUpperTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Upper.PreserveEntityVelocity", true);
+            bolDefaultUpperTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Upper.PreserveEntityFallDistance", true);
+            ohmDefaultUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                ohmUpperEntityFilter.put(et, objConfiguration.getBoolean("Default.Upper.EntityFilter." + et.getName(), false));
+                ohmDefaultUpperTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Upper.Teleport.EntityFilter." + et.getName(), true));
             }
 
-            strLowerWorld = objConfiguration.getString("Default.Lower.World", "");
-            intLowerOverlapStart = objConfiguration.getInt("Default.Lower.OverlapStart", 0);
-            intLowerOverlapTarget = objConfiguration.getInt("Default.Lower.OverlapTarget", 255);
-            intLowerOverlap = objConfiguration.getInt("Default.Lower.Overlap", 0);
-            intLowerTeleport = objConfiguration.getInt("Default.Lower.Teleport", 255);
-            intLowerTeleportTarget = objConfiguration.getInt("Default.Lower.TeleportTarget", 1);
-            bolLowerPreserveEntityVelocity = objConfiguration.getBoolean("Default.Lower.PreserveEntityVelocity", true);
-            bolLowerPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Lower.PreserveEntityFallDistance", true);
-            ohmLowerEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            strDefaultLowerWorld = objConfiguration.getString("Default.Lower.World", "");
+            bolDefaultLowerOverlapEnabled = objConfiguration.getBoolean("Default.Lower.Overlap.Enabled", false);
+            intDefaultLowerOverlapFrom = objConfiguration.getInt("Default.Lower.Overlap.From", 255);
+            intDefaultLowerOverlapTo = objConfiguration.getInt("Default.Lower.Overlap.To", 0);
+            intDefaultLowerOverlapLayers = objConfiguration.getInt("Default.Lower.Overlap.Layers", 0);
+            bolDefaultLowerTeleportEnabled = objConfiguration.getBoolean("Default.Lower.Teleport.Enabled", false);
+            intDefaultLowerTeleportFrom = objConfiguration.getInt("Default.Lower.Teleport.From", 0);
+            intDefaultLowerTeleportTo = objConfiguration.getInt("Default.Lower.Teleport.To", 254);
+            bolDefaultLowerTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Lower.PreserveEntityVelocity", true);
+            bolDefaultLowerTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Lower.PreserveEntityFallDistance", true);
+            ohmDefaultLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                ohmLowerEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.EntityFilter." + et.getName(), false));
+                ohmDefaultLowerTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.Teleport.EntityFilter." + et.getName(), true));
             }
-
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -328,83 +337,104 @@ public class Inception
         return objWorldConfigDirectory;
     }
 
-    public boolean doPredictPosition() {
-        return bolDoPredictPosition;
+    //Default Value Getters
+    public boolean bolDefaultDoPredictPosition() {
+        return bolDefaultDoPredictPosition;
     }
 
-    public boolean doPreserveLowerEntityFallDistance() {
-        return bolLowerPreserveEntityFallDistance;
+    public boolean bolDefaultIsEnabled() {
+        return bolDefaultIsEnabled;
     }
 
-    public boolean doPreserveLowerEntityVelocity() {
-        return bolLowerPreserveEntityVelocity;
+    public boolean bolDefaultLowerOverlapEnabled() {
+        return bolDefaultLowerOverlapEnabled;
     }
 
-    public boolean doPreserveUpperEntityFallDistance() {
-        return bolUpperPreserveEntityFallDistance;
+    public boolean bolDefaultLowerTeleportEnabled() {
+        return bolDefaultLowerTeleportEnabled;
     }
 
-    public boolean doPreserveUpperEntityVelocity() {
-        return bolUpperPreserveEntityVelocity;
+    public boolean bolDefaultLowerTeleportPreserveEntityFallDistance() {
+        return bolDefaultLowerTeleportPreserveEntityFallDistance;
     }
 
-    public int getDelayedTicks() {
-        return intDelayedTicks;
+    public boolean bolDefaultLowerTeleportPreserveEntityVelocity() {
+        return bolDefaultLowerTeleportPreserveEntityVelocity;
     }
 
-    public int getLowerOverlap() {
-        return intLowerOverlap;
+    public boolean bolDefaultUpperOverlapEnabled() {
+        return bolDefaultUpperOverlapEnabled;
     }
 
-    public int getLowerOverlapStart() {
-        return intLowerOverlapStart;
+    public boolean bolDefaultUpperTeleportEnabled() {
+        return bolDefaultUpperTeleportEnabled;
     }
 
-    public int getLowerOverlapTarget() {
-        return intLowerOverlapTarget;
+    public boolean bolDefaultUpperTeleportPreserveEntityFallDistance() {
+        return bolDefaultUpperTeleportPreserveEntityFallDistance;
     }
 
-    public int getLowerTeleport() {
-        return intLowerTeleport;
+    public boolean bolDefaultUpperTeleportPreserveEntityVelocity() {
+        return bolDefaultUpperTeleportPreserveEntityVelocity;
     }
 
-    public int getLowerTeleportTarget() {
-        return intLowerTeleportTarget;
+    public int intDefaultDelayedTicks() {
+        return intDefaultDelayedTicks;
     }
 
-    public int getUpperOverlap() {
-        return intUpperOverlap;
+    public int intDefaultLowerOverlapFrom() {
+        return intDefaultLowerOverlapFrom;
     }
 
-    public int getUpperOverlapStart() {
-        return intUpperOverlapStart;
+    public int intDefaultLowerOverlapLayers() {
+        return intDefaultLowerOverlapLayers;
     }
 
-    public int getUpperOverlapTarget() {
-        return intUpperOverlapTarget;
+    public int intDefaultLowerOverlapTo() {
+        return intDefaultLowerOverlapTo;
     }
 
-    public int getUpperTeleport() {
-        return intUpperTeleport;
+    public int intDefaultLowerTeleportFrom() {
+        return intDefaultLowerTeleportFrom;
     }
 
-    public int getUpperTeleportTarget() {
-        return intUpperTeleportTarget;
+    public int intDefaultLowerTeleportTo() {
+        return intDefaultLowerTeleportTo;
     }
 
-    public String getLowerWorld() {
-        return strLowerWorld;
+    public int intDefaultUpperOverlapFrom() {
+        return intDefaultUpperOverlapFrom;
     }
 
-    public String getUpperWorld() {
-        return strUpperWorld;
+    public int intDefaultUpperOverlapLayers() {
+        return intDefaultUpperOverlapLayers;
     }
 
-    public EnumMap<EntityType, Boolean> getLowerEntityFilter() {
-        return ohmLowerEntityFilter;
+    public int intDefaultUpperOverlapTo() {
+        return intDefaultUpperOverlapTo;
     }
 
-    public EnumMap<EntityType, Boolean> getUpperEntityFilter() {
-        return ohmUpperEntityFilter;
+    public int intDefaultUpperTeleportFrom() {
+        return intDefaultUpperTeleportFrom;
+    }
+
+    public int intDefaultUpperTeleportTo() {
+        return intDefaultUpperTeleportTo;
+    }
+
+    public EnumMap<EntityType, Boolean> ohmDefaultLowerTeleportEntityFilter() {
+        return ohmDefaultLowerTeleportEntityFilter;
+    }
+
+    public EnumMap<EntityType, Boolean> ohmDefaultUpperTeleportEntityFilter() {
+        return ohmDefaultUpperTeleportEntityFilter;
+    }
+
+    public String strDefaultLowerWorld() {
+        return strDefaultLowerWorld;
+    }
+
+    public String strDefaultUpperWorld() {
+        return strDefaultUpperWorld;
     }
 }
