@@ -1,127 +1,163 @@
+#Node                              Explanation
+#-------------------------------------------------------------------------------
+#World:                            Container for WorldHandler specific things.
+#  Enabled:                        Is this WorldHandler enabled?
+#  DelayedTicks:                   How many ticks lie between each teleport
+#                                    check? (In Ticks, 0 and below disable)
+#  DoPredictPosition:              Should we predict where an entity will be
+#                                    in <DelayedTicks> time? This helps smooth
+#                                    out player experience but can cause un-
+#                                    expected behaviour.
+#Upper:                            Container for the 'Above' world stuff.
+#  World:                          What World is above this one? (null or an
+#                                    unknown world to disable)
+#  Overlap:                        Container for overlapping the above world.
+#    Enabled:                      Is overlapping enabled?
+#    From:                         From what layer in the above world should we
+#                                    start from?
+#    To:                           To what layer should these get copied?
+#    Layers:                       How many layers should get copied?
+#  Teleport:                       Container for teleporting to the above world.
+#    Enabled:                      Is teleporting enabled?
+#    From:                         From what layer (and above) should we tele-
+#                                    port players?
+#    To:                           To what layer (and above) should we teleport 
+#                                    players?
+#    PreserveEntityVelocity:       Should the Entity keep it's velocity?
+#    PreserveEntityFallDistance:   Should the Entity keep it's fall distance?
+#    EntityFilter:                 A list of Entities to filter(true = disallow)
+#Lower:                            Container for the 'Below' world stuff.
+#  World:                          What World is below this one? (null or an
+#                                    unknown world to disable)
+#  Overlap:                        Container for overlapping the below world.
+#    Enabled:                      Is overlapping enabled?
+#    From:                         From what layer in the above world should we
+#                                    start from?
+#    To:                           To what layer should these get copied?
+#    Layers:                       How many layers should get copied?
+#  Teleport:                       Container for teleporting to the below world.
+#    Enabled:                      Is teleporting enabled?
+#    From:                         From what layer (and below) should we tele-
+#                                    port players?
+#    To:                           To what layer (and below) should we teleport 
+#                                    players?
+#    PreserveEntityVelocity:       Should the Entity keep it's velocity?
+#    PreserveEntityFallDistance:   Should the Entity keep it's fall distance?
+#    EntityFilter:                 A list of Entities to filter(true = disallow)
+
 World:
-  #How many ticks are between each teleport check? Lowering this increases server load but makes teleporting smoother. Set to 0 to disable.
+  Enabled: false
   DelayedTicks: 2
-  #Should we predict entity positions? This will make teleporting a bit smoother, but can cause early unwanted teleportation. Predicted positions are <DelayedTicks> ahead of the current situation.
   DoPredictPosition: true
 Upper:
-  #What world should climbing go to? (null or unknown world to disable climbing)
   World: null
-  #On what layer should the overlapping start?
-  OverlapStart: 255
-  #On what layer should the overlapping start in the targeted world?
-  OverlapTarget: 0
-  #How many layers should we copy into this world from the above world?
-  Overlap: 0
-  #At what layer should we teleport entities and players?
-  Teleport: 255
-  #To what layer should we teleport entities and players?
-  TeleportTarget: 1
-  #Should we preserve velocity?
-  PreserveEntityVelocity: true
-  #Should we preserve distance fallen?
-  PreserveEntityFallDistance: true
-  #Set the entities you want to don't want to allow to true
-  EntityFilter:
-    #Normal entities
-    Item: false
-    XPOrb: false
-    Painting: true
-    Arrow: false
-    Snowball: false
-    Fireball: false
-    SmallFireball: false
-    ThrownEnderpearl: false
-    EyeOfEnderSignal: false
-    ThrownEXpBottle: false
-    PrimedTnt: false
-    FallingSand: false
-    Minecart: false
-    Boat: false
-    #NPCs - Aggressive
-    Creeper: false
-    Skeleton: false
-    Spider: false
-    Giant: false
-    Zombie: false
-    Slime: false
-    Ghast: false
-    PigZombie: false
-    Enderman: false
-    CaveSpider: false
-    Silverfish: false
-    Blaze: false
-    LavaSlime: false
-    EnderDragon: true
-    #NPCs - Passive
-    Pig: false
-    Sheep: false
-    Cow: false
-    Chicken: false
-    Squid: false
-    Wolf: false
-    MushroomCow: false
-    SnowMan: false
-    Ozelot: false
-    VillagerGolem: false
-    Villager: false
+  Overlap:
+    Enabled: false
+    From: 0
+    To: 255
+    Layers: 0
+  Teleport:
+    Enabled: false
+    From: 255
+    To: 1
+    PreserveEntityVelocity: true
+    PreserveEntityFallDistance: true
+    EntityFilter:
+        #Normal entities
+        Item: false
+        XPOrb: false
+        Painting: true
+        Arrow: false
+        Snowball: false
+        Fireball: false
+        SmallFireball: false
+        ThrownEnderpearl: false
+        EyeOfEnderSignal: false
+        ThrownEXpBottle: false
+        PrimedTnt: false
+        FallingSand: false
+        Minecart: false
+        Boat: false
+        #NPCs - Aggressive
+        Creeper: false
+        Skeleton: false
+        Spider: false
+        Giant: false
+        Zombie: false
+        Slime: false
+        Ghast: false
+        PigZombie: false
+        Enderman: false
+        CaveSpider: false
+        Silverfish: false
+        Blaze: false
+        LavaSlime: false
+        EnderDragon: true
+        #NPCs - Passive
+        Pig: false
+        Sheep: false
+        Cow: false
+        Chicken: false
+        Squid: false
+        Wolf: false
+        MushroomCow: false
+        SnowMan: false
+        Ozelot: false
+        VillagerGolem: false
+        Villager: false
 Lower:
-  #What world should falling go to? (null or unknown world to disable falling)
   World: null
-  #On what layer should the overlapping start?
-  OverlapStart: 0
-  #On what layer should the overlapping start in the targeted world?
-  OverlapTarget: 255
-  #How many layers should we copy into this world from the above world?
-  Overlap: 0
-  #At what layer should we teleport entities and players?
-  Teleport: 0
-  #To what layer should we teleport entities and players?
-  TeleportTarget: 254
-  #Should we preserve velocity?
-  PreserveEntityVelocity: true
-  #Should we preserve distance fallen?
-  PreserveEntityFallDistance: true
-  #Set the entities you want to don't want to allow to true
-  EntityFilter:
-    #Normal entities
-    Item: false
-    XPOrb: false
-    Painting: true
-    Arrow: false
-    Snowball: false
-    Fireball: false
-    SmallFireball: false
-    ThrownEnderpearl: false
-    EyeOfEnderSignal: false
-    ThrownEXpBottle: false
-    PrimedTnt: false
-    FallingSand: false
-    Minecart: false
-    Boat: false
-    #NPCs - Aggressive
-    Creeper: false
-    Skeleton: false
-    Spider: false
-    Giant: false
-    Zombie: false
-    Slime: false
-    Ghast: false
-    PigZombie: false
-    Enderman: false
-    CaveSpider: false
-    Silverfish: false
-    Blaze: false
-    LavaSlime: false
-    EnderDragon: true
-    #NPCs - Passive
-    Pig: false
-    Sheep: false
-    Cow: false
-    Chicken: false
-    Squid: false
-    Wolf: false
-    MushroomCow: false
-    SnowMan: false
-    Ozelot: false
-    VillagerGolem: false
-    Villager: false
+  Overlap:
+    Enabled: false
+    From: 0
+    To: 255
+    Layers: 0
+  Teleport:
+    Enabled: false
+    From: 0
+    To: 254
+    PreserveEntityVelocity: true
+    PreserveEntityFallDistance: true
+    EntityFilter:
+        #Normal entities
+        Item: false
+        XPOrb: false
+        Painting: true
+        Arrow: false
+        Snowball: false
+        Fireball: false
+        SmallFireball: false
+        ThrownEnderpearl: false
+        EyeOfEnderSignal: false
+        ThrownEXpBottle: false
+        PrimedTnt: false
+        FallingSand: false
+        Minecart: false
+        Boat: false
+        #NPCs - Aggressive
+        Creeper: false
+        Skeleton: false
+        Spider: false
+        Giant: false
+        Zombie: false
+        Slime: false
+        Ghast: false
+        PigZombie: false
+        Enderman: false
+        CaveSpider: false
+        Silverfish: false
+        Blaze: false
+        LavaSlime: false
+        EnderDragon: true
+        #NPCs - Passive
+        Pig: false
+        Sheep: false
+        Cow: false
+        Chicken: false
+        Squid: false
+        Wolf: false
+        MushroomCow: false
+        SnowMan: false
+        Ozelot: false
+        VillagerGolem: false
+        Villager: false
