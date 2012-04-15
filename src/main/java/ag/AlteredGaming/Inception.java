@@ -68,8 +68,7 @@ public class Inception
 
     @Override
     public void onEnable() {
-        objLogger = super.getLogger();//Logger.getLogger(Inception.class.getName());
-
+        objLogger = super.getLogger();
         prefix = this.getDescription().getPrefix() + " ";
 
         //Plugin files and folders
