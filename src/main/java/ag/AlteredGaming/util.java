@@ -122,8 +122,8 @@ public class util {
             throw new TypeConstraintException("'player' must be CommandSender, Player or String");
         }
     }
-    
-        public Entity entityTeleportEx(Entity ent, Location loc) {
+
+    public static Entity entityTeleportEx(Entity ent, Location loc) {
         /*
          * We skip the following Classes due to being unsure if these actually
          * work out well:

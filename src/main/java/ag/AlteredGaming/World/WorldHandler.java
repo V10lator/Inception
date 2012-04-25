@@ -1,6 +1,7 @@
 package ag.AlteredGaming.World;
 
 import ag.AlteredGaming.Inception;
+import ag.AlteredGaming.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,34 +11,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Explosive;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.IronGolem;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Ocelot;
-import org.bukkit.entity.Painting;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.StorageMinecart;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wolf;
 import org.bukkit.util.Vector;
 
 /**
@@ -211,7 +186,7 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _UpperWorldExit.setPitch(ent.getLocation().getPitch());
                         _UpperWorldExit.setYaw(ent.getLocation().getYaw());
-                        Entity tent = entityTeleportEx(ent, _UpperWorldExit);
+                        Entity tent = util.entityTeleportEx(ent, _UpperWorldExit);
 
                         if (!bolUpperTeleportPreserveEntityVelocity) {
                             tent.setVelocity(new Vector(0, 0, 0));
@@ -234,7 +209,7 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                         _LowerWorldExit.setYaw(ent.getLocation().getYaw());
-                        Entity tent = entityTeleportEx(ent, _LowerWorldExit);
+                        Entity tent = util.entityTeleportEx(ent, _LowerWorldExit);
 
                         if (!bolLowerTeleportPreserveEntityVelocity) {
                             tent.setVelocity(new Vector(0, 0, 0));
