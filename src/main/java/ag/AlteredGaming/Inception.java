@@ -201,11 +201,11 @@ public class Inception
                 ohmDefaultLowerTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.Teleport.EntityFilter." + et.getName(), true));
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         } catch (InvalidConfigurationException ex) {
-            Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
+            objLogger.log(Level.SEVERE, null, ex);
         }
     }
 

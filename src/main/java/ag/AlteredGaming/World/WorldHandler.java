@@ -84,8 +84,6 @@ public class WorldHandler {
         this.objWorldConfigFile = new File(objPlugin.getWorldConfigDirectoryFile().getPath() + "/" + objWorld.getName() + ".yml");
         this.objWorldConfig = new YamlConfiguration();
 
-        //Check if we need to generate default files and generate them
-        saveDefaultConfig();
         loadConfig();
     }
 
@@ -98,6 +96,7 @@ public class WorldHandler {
 
     public void loadConfig() {
         try {
+            saveDefaultConfig();
             objWorldConfig.load(objWorldConfigFile);
 
             bolIsEnabled = objWorldConfig.getBoolean("World.Enabled", objPlugin.bolDefaultIsEnabled());
