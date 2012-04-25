@@ -28,6 +28,7 @@ import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Slime;
@@ -36,7 +37,6 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
-import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.Wolf;
 import org.bukkit.util.Vector;
 
@@ -147,6 +147,8 @@ public class WorldHandler {
                     intWorldHandlerRunnableTask = objPlugin.getServer().getScheduler().scheduleSyncRepeatingTask(objPlugin, objWorldHandlerRunnable, intDelayedTicks, intDelayedTicks);
                     if (intWorldHandlerRunnableTask == -1) {
                         objPlugin.getLogger().warning("<" + objWorld.getName() + "> Could not register synchronized repeating task. Entities can not be teleported!");
+                    } else {
+                        objPlugin.getLogger().info("<" + objWorld.getName() + "> WorldHandler enabled.");
                     }
                 }
                 if (intWorldHandlerRunnableTask == -1) {
@@ -197,9 +199,11 @@ public class WorldHandler {
                     if (ohmUpperTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
-                    if (_EntityLocation.getY() < intUpperTeleportFrom) {
-                        continue;
-                    } else {
+                    if (ent.getType() == EntityType.PLAYER) {
+                        objPlugin.getLogger().info(String.valueOf(_EntityLocation.getY())+" "+String.valueOf(intUpperTeleportFrom));
+                    }
+                    if (_EntityLocation.getY() > intUpperTeleportFrom) {
+                        
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _UpperWorldExit = new Location(objUpperWorld,
                                                                 ent.getLocation().getX(),
@@ -207,17 +211,13 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _UpperWorldExit.setPitch(ent.getLocation().getPitch());
                         _UpperWorldExit.setYaw(ent.getLocation().getYaw());
-                        ent = entityTeleportEx(ent, _UpperWorldExit);
+                        Entity tent = entityTeleportEx(ent, _UpperWorldExit);
 
-                        if (bolUpperTeleportPreserveEntityVelocity) {
-                            ent.setVelocity(_EntityVelocity);
-                        } else {
-                            ent.setVelocity(new Vector(0, 0, 0));
+                        if (!bolUpperTeleportPreserveEntityVelocity) {
+                            tent.setVelocity(new Vector(0, 0, 0));
                         }
-                        if (bolUpperTeleportPreserveEntityFallDistance) {
-                            ent.setFallDistance(_EntityDistanceFallen);
-                        } else {
-                            ent.setFallDistance(0);
+                        if (!bolUpperTeleportPreserveEntityFallDistance) {
+                            tent.setFallDistance(0);
                         }
                     }
                 }
@@ -226,8 +226,7 @@ public class WorldHandler {
                         continue;
                     }
                     if (_EntityLocation.getY() < intLowerTeleportFrom) {
-                        continue;
-                    } else {
+                        objPlugin.getLogger().info(String.valueOf(_EntityLocation.getY())+" "+String.valueOf(intLowerTeleportFrom));
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _LowerWorldExit = new Location(objLowerWorld,
                                                                 ent.getLocation().getX(),
@@ -235,17 +234,13 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                         _LowerWorldExit.setYaw(ent.getLocation().getYaw());
-                        ent = entityTeleportEx(ent, _LowerWorldExit);
+                        Entity tent = entityTeleportEx(ent, _LowerWorldExit);
 
-                        if (bolLowerTeleportPreserveEntityVelocity) {
-                            ent.setVelocity(_EntityVelocity);
-                        } else {
-                            ent.setVelocity(new Vector(0, 0, 0));
+                        if (!bolLowerTeleportPreserveEntityVelocity) {
+                            tent.setVelocity(new Vector(0, 0, 0));
                         }
-                        if (bolLowerTeleportPreserveEntityFallDistance) {
-                            ent.setFallDistance(_EntityDistanceFallen);
-                        } else {
-                            ent.setFallDistance(0);
+                        if (!bolLowerTeleportPreserveEntityFallDistance) {
+                            tent.setFallDistance(0);
                         }
                     }
                 }
@@ -253,151 +248,7 @@ public class WorldHandler {
         }
     }
 
-    public Entity entityTeleportEx(Entity ent, Location loc) {
-        /*
-         * We skip the following Classes due to being unsure if these actually
-         * work out well:
-         * - ComplexEntityPart(bail-out)
-         * - Player(uses normal teleport method)
-         * - Unknown(bail-out)
-         * - Weather(bail-out)
-         */
-        switch (ent.getType()) {
-            case COMPLEX_PART:
-                return ent;
-            case PLAYER:
-                ent.teleport(loc);
-                return ent;
-            case UNKNOWN:
-                return ent;
-            case WEATHER:
-                return ent;
-        }
-        /*
-         * Why do we do this? Because we don't know what they actually are and
-         * if these can teleport without breakage. Except player, which just
-         * requires teleport.
-         */
 
-        Entity newEnt = loc.getWorld().spawnCreature(loc, ent.getType());
-
-        newEnt.setFallDistance(ent.getFallDistance());
-        newEnt.setFireTicks(ent.getFireTicks());
-        newEnt.setLastDamageCause(ent.getLastDamageCause());
-        newEnt.setPassenger(ent.getPassenger());
-        newEnt.setTicksLived(ent.getTicksLived());
-        newEnt.setVelocity(ent.getVelocity());
-
-        /*
-         * We skip some Classes due to them having no properties of
-         * their own or other means
-         */
-        if (newEnt instanceof Ageable) {
-            ((Ageable) newEnt).setAge(((Ageable) ent).getAge());
-            ((Ageable) newEnt).setAgeLock(((Ageable) ent).getAgeLock());
-            ((Ageable) newEnt).setBreed(((Ageable) ent).canBreed());
-            if (((Ageable) newEnt).isAdult()) {
-                ((Ageable) newEnt).setAdult();
-            } else {
-                ((Ageable) newEnt).setBaby();
-            }
-        }
-        if (newEnt instanceof Boat) {
-            ((Boat) newEnt).setMaxSpeed(((Boat) ent).getMaxSpeed());
-            ((Boat) newEnt).setOccupiedDeceleration(((Boat) ent).getOccupiedDeceleration());
-            ((Boat) newEnt).setUnoccupiedDeceleration(((Boat) ent).getUnoccupiedDeceleration());
-            ((Boat) newEnt).setWorkOnLand(((Boat) ent).getWorkOnLand());
-        }
-        if (newEnt instanceof Creature) {
-            ((Creature) newEnt).setTarget(((Creature) ent).getTarget());
-        }
-        if (newEnt instanceof Creeper) {
-            ((Creeper) newEnt).setPowered(((Creeper) ent).isPowered());
-        }
-        if (newEnt instanceof Enderman) {
-            ((Enderman) newEnt).setCarriedMaterial(((Enderman) ent).getCarriedMaterial());
-        }
-        if (newEnt instanceof ExperienceOrb) {
-            ((ExperienceOrb) newEnt).setExperience(((ExperienceOrb) ent).getExperience());
-        }
-        if (newEnt instanceof Explosive) {
-            ((Explosive) newEnt).setIsIncendiary(((Explosive) ent).isIncendiary());
-            ((Explosive) newEnt).setYield(((Explosive) ent).getYield());
-        }
-        if (newEnt instanceof Fireball) {
-            ((Fireball) newEnt).setDirection(((Fireball) ent).getDirection());
-        }
-        if (newEnt instanceof IronGolem) {
-            ((IronGolem) newEnt).setPlayerCreated(((IronGolem) ent).isPlayerCreated());
-        }
-        if (newEnt instanceof Item) {
-            ((Item) newEnt).setItemStack(((Item) ent).getItemStack());
-            ((Item) newEnt).setPickupDelay(((Item) ent).getPickupDelay());
-        }
-        if (newEnt instanceof LivingEntity) {
-            ((LivingEntity) newEnt).setHealth(((LivingEntity) ent).getHealth());
-            ((LivingEntity) newEnt).setLastDamage(((LivingEntity) ent).getLastDamage());
-            ((LivingEntity) newEnt).setMaximumAir(((LivingEntity) ent).getMaximumAir());
-            ((LivingEntity) newEnt).setMaximumNoDamageTicks(((LivingEntity) ent).getMaximumNoDamageTicks());
-            ((LivingEntity) newEnt).setNoDamageTicks(((LivingEntity) ent).getNoDamageTicks());
-            ((LivingEntity) newEnt).setRemainingAir(((LivingEntity) ent).getRemainingAir());
-            ((LivingEntity) newEnt).addPotionEffects(((LivingEntity) ent).getActivePotionEffects());
-        }
-        if (newEnt instanceof Minecart) {
-            ((Minecart) newEnt).setDamage(((Minecart) ent).getDamage());
-            ((Minecart) newEnt).setDerailedVelocityMod(((Minecart) ent).getDerailedVelocityMod());
-            ((Minecart) newEnt).setFlyingVelocityMod(((Minecart) ent).getFlyingVelocityMod());
-            ((Minecart) newEnt).setMaxSpeed(((Minecart) ent).getMaxSpeed());
-            ((Minecart) newEnt).setSlowWhenEmpty(((Minecart) ent).isSlowWhenEmpty());
-        }
-        if (newEnt instanceof Ocelot) {
-            ((Ocelot) newEnt).setCatType(((Ocelot) ent).getCatType());
-            ((Ocelot) newEnt).setSitting(((Ocelot) ent).isSitting());
-        }
-        if (newEnt instanceof Painting) {
-            ((Painting) newEnt).setArt(((Painting) ent).getArt());
-            ((Painting) newEnt).setFacingDirection(((Painting) ent).getFacing());
-        }
-        if (newEnt instanceof Pig) {
-            ((Pig) newEnt).setSaddle(((Pig) ent).hasSaddle());
-        }
-        if (newEnt instanceof PigZombie) {
-            ((PigZombie) newEnt).setAnger(((PigZombie) ent).getAnger());
-            ((PigZombie) newEnt).setAngry(((PigZombie) ent).isAngry());
-        }
-        if (newEnt instanceof Projectile) {
-            ((Projectile) newEnt).setBounce(((Projectile) ent).doesBounce());
-            ((Projectile) newEnt).setShooter(((Projectile) ent).getShooter());
-        }
-        if (newEnt instanceof Sheep) {
-            ((Sheep) newEnt).setSheared(((Sheep) ent).isSheared());
-            ((Sheep) newEnt).setColor(((Sheep) ent).getColor());
-        }
-        if (newEnt instanceof Slime) {
-            ((Slime) newEnt).setSize(((Slime) ent).getSize());
-        }
-        if (newEnt instanceof StorageMinecart) {
-            ((StorageMinecart) newEnt).getInventory().setContents(((StorageMinecart) ent).getInventory().getContents());
-        }
-        if (newEnt instanceof Tameable) {
-            ((Tameable) newEnt).setTamed(((Tameable) ent).isTamed());
-            ((Tameable) newEnt).setOwner(((Tameable) ent).getOwner());
-        }
-        if (newEnt instanceof TNTPrimed) {
-            ((TNTPrimed) newEnt).setFuseTicks(((TNTPrimed) ent).getFuseTicks());
-        }
-        if (newEnt instanceof Vehicle) {
-            ((Vehicle) newEnt).setVelocity(((Vehicle) ent).getVelocity());
-        }
-        if (newEnt instanceof Villager) {
-            ((Villager) newEnt).setProfession(((Villager) ent).getProfession());
-        }
-        if (newEnt instanceof Wolf) {
-            ((Wolf) newEnt).setAngry(((Wolf) ent).isAngry());
-            ((Wolf) newEnt).setSitting(((Wolf) ent).isSitting());
-        }
-        return newEnt;
-    }
 
     public World getWorld() {
         return objWorld;
