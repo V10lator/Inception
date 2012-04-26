@@ -252,7 +252,7 @@ public class util {
             ((Item) newEnt).setPickupDelay(((Item) ent).getPickupDelay());
         }
         if (newEnt instanceof LivingEntity) {
-            ((LivingEntity) newEnt).setHealth((((LivingEntity) ent).getHealth() >= 0 && ((LivingEntity) ent).getHealth() <= 20 ? ((LivingEntity) ent).getHealth() : 0 ));
+            ((LivingEntity) newEnt).setHealth((((LivingEntity) ent).getHealth() >= 0 ? ((LivingEntity) ent).getHealth() : 0 ));
             ((LivingEntity) newEnt).setLastDamage(((LivingEntity) ent).getLastDamage());
             ((LivingEntity) newEnt).setMaximumAir(((LivingEntity) ent).getMaximumAir());
             ((LivingEntity) newEnt).setMaximumNoDamageTicks(((LivingEntity) ent).getMaximumNoDamageTicks());
