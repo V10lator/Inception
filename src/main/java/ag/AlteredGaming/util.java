@@ -38,6 +38,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
+import org.bukkit.util.Vector;
 
 /**
  *
@@ -132,24 +133,76 @@ public class util {
          * - Unknown(bail-out)
          * - Weather(bail-out)
          */
+        Entity newEnt = null;
+        //Bukkit logic: Almost all things can be directly created but some. Fucking get some standards up, bukkit team!
         switch (ent.getType()) {
-            case COMPLEX_PART:
-                return ent;
+            /*
+             * Early-Exit because these have no Entity ID. We'll still try to
+             * teleport these.
+             */
             case PLAYER:
-                ent.teleport(loc);
-                return ent;
-            case UNKNOWN:
-                return ent;
+            case SPLASH_POTION:
+            case EGG:
+            case FISHING_HOOK:
+            case LIGHTNING:
             case WEATHER:
+            case COMPLEX_PART:
+            case UNKNOWN:
+                float flFallDistance = ent.getFallDistance();
+                Vector vtVelocity = ent.getVelocity();
+                ent.teleport(loc);
+                ent.setFallDistance(flFallDistance);
+                ent.setVelocity(vtVelocity);
                 return ent;
+            /*
+             * Mobs and NPCs
+             */
+            case CREEPER:
+            case SKELETON:
+            case SPIDER:
+            case GIANT:
+            case ZOMBIE:
+            case SLIME:
+            case GHAST:
+            case PIG_ZOMBIE:
+            case ENDERMAN:
+            case CAVE_SPIDER:
+            case SILVERFISH:
+            case BLAZE:
+            case MAGMA_CUBE:
+            case ENDER_DRAGON:
+            case PIG:
+            case SHEEP:
+            case COW:
+            case CHICKEN:
+            case SQUID:
+            case WOLF:
+            case MUSHROOM_COW:
+            case SNOWMAN:
+            case OCELOT:
+            case IRON_GOLEM:
+            case VILLAGER:
+                newEnt = loc.getWorld().spawnCreature(loc, ent.getType());
+                break;
+            /*
+             * Items can't be spawned and need to be dropped instead.
+             */
+            case DROPPED_ITEM:
+                newEnt = loc.getWorld().dropItem(loc, ((Item) ent).getItemStack());
+                break;
+            /*
+             * Now we can continue with whats left...
+             */
+            default:
+                newEnt = loc.getWorld().spawn(loc, ent.getClass());
+                break;
         }
-        Entity newEnt = loc.getWorld().spawnCreature(loc, ent.getType());
 
         newEnt.setFallDistance(ent.getFallDistance());
         newEnt.setFireTicks(ent.getFireTicks());
         newEnt.setLastDamageCause(ent.getLastDamageCause());
         newEnt.setPassenger(ent.getPassenger());
-        newEnt.setTicksLived(ent.getTicksLived());
+        newEnt.setTicksLived((ent.getTicksLived() > 0 ? ent.getTicksLived() : 1));
         newEnt.setVelocity(ent.getVelocity());
 
         /*

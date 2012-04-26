@@ -174,11 +174,7 @@ public class WorldHandler {
                     if (ohmUpperTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
-                    if (ent.getType() == EntityType.PLAYER) {
-                        objPlugin.getLogger().info(String.valueOf(_EntityLocation.getY())+" "+String.valueOf(intUpperTeleportFrom));
-                    }
                     if (_EntityLocation.getY() > intUpperTeleportFrom) {
-                        
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _UpperWorldExit = new Location(objUpperWorld,
                                                                 ent.getLocation().getX(),
@@ -201,7 +197,6 @@ public class WorldHandler {
                         continue;
                     }
                     if (_EntityLocation.getY() < intLowerTeleportFrom) {
-                        objPlugin.getLogger().info(String.valueOf(_EntityLocation.getY())+" "+String.valueOf(intLowerTeleportFrom));
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _LowerWorldExit = new Location(objLowerWorld,
                                                                 ent.getLocation().getX(),
@@ -222,8 +217,6 @@ public class WorldHandler {
             }
         }
     }
-
-
 
     public World getWorld() {
         return objWorld;
