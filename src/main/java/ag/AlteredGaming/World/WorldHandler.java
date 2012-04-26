@@ -200,7 +200,7 @@ public class WorldHandler {
                         //2. Step: We can't skip it so let's just do what is needed
                         Location _LowerWorldExit = new Location(objLowerWorld,
                                                                 ent.getLocation().getX(),
-                                                                intLowerTeleportTo - (ent.getLocation().getY() - intLowerTeleportFrom),
+                                                                intLowerTeleportTo + (ent.getLocation().getY() - intLowerTeleportFrom),
                                                                 ent.getLocation().getZ());
                         _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                         _LowerWorldExit.setYaw(ent.getLocation().getYaw());
