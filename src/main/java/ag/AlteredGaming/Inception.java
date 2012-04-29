@@ -131,6 +131,9 @@ public class Inception
         getServer().getScheduler().cancelTasks(this);
 
         //Null all variable references to allow the GC to delete these
+        for (World wld : ohmWorldHandlers.keySet()) {
+            ohmWorldHandlers.get(wld).overlapUnload();
+        }
         ohmWorldHandlers.clear();
         ohmWorldHandlers = null;
         objWorldListener = null;

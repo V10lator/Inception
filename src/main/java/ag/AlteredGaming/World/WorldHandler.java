@@ -6,13 +6,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.logging.Level;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.util.Vector;
 
 /**
@@ -38,7 +46,7 @@ public class WorldHandler {
     private int intUpperTeleportTo;
     private boolean bolUpperTeleportPreserveEntityVelocity;
     private boolean bolUpperTeleportPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> ohmUpperTeleportEntityFilter;
+    private EnumMap<EntityType, Boolean> mapUpperTeleportEntityFilter;
     private World objLowerWorld;
     private boolean bolLowerOverlapEnabled;
     private int intLowerOverlapFrom;
@@ -52,6 +60,8 @@ public class WorldHandler {
     private EnumMap<EntityType, Boolean> ohmLowerTeleportEntityFilter;
     private WorldHandlerRunnable objWorldHandlerRunnable;
     private int intWorldHandlerRunnableTask = -1;
+    private HashMap<Chunk, HashMap<Vector, Material>> mapChunkOverlapChangedBlocksType;
+    private HashMap<Chunk, HashMap<Vector, Byte>> mapChunkOverlapChangedBlocksData;
 
     public WorldHandler(Inception objPlugin, World objWorld) {
         this.objPlugin = objPlugin;
@@ -90,9 +100,13 @@ public class WorldHandler {
                 intUpperTeleportTo = objWorldConfig.getInt("Upper.Teleport.To", objPlugin.intDefaultUpperTeleportTo());
                 bolUpperTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Upper.PreserveEntityVelocity", objPlugin.bolDefaultUpperTeleportPreserveEntityVelocity());
                 bolUpperTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Upper.PreserveEntityFallDistance", objPlugin.bolDefaultUpperTeleportPreserveEntityFallDistance());
-                ohmUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+                if (mapUpperTeleportEntityFilter != null) {
+                    mapUpperTeleportEntityFilter.clear();
+                    mapUpperTeleportEntityFilter = null;
+                }
+                mapUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
                 for (EntityType et : EntityType.values()) {
-                    ohmUpperTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Upper.Teleport.EntityFilter." + et.getName(), objPlugin.ohmDefaultUpperTeleportEntityFilter().get(et)));
+                    mapUpperTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Upper.Teleport.EntityFilter." + et.getName(), objPlugin.ohmDefaultUpperTeleportEntityFilter().get(et)));
                 }
 
                 objLowerWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Lower.World", objPlugin.strDefaultLowerWorld()));
@@ -105,10 +119,18 @@ public class WorldHandler {
                 intLowerTeleportTo = objWorldConfig.getInt("Lower.Teleport.To", objPlugin.intDefaultLowerTeleportTo());
                 bolLowerTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Lower.PreserveEntityVelocity", objPlugin.bolDefaultLowerTeleportPreserveEntityVelocity());
                 bolLowerTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Lower.PreserveEntityFallDistance", objPlugin.bolDefaultLowerTeleportPreserveEntityFallDistance());
+                if (ohmLowerTeleportEntityFilter != null) {
+                    ohmLowerTeleportEntityFilter.clear();
+                    ohmLowerTeleportEntityFilter = null;
+                }
                 ohmLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
                 for (EntityType et : EntityType.values()) {
                     ohmLowerTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Lower.Teleport.EntityFilter." + et.getName(), objPlugin.ohmDefaultLowerTeleportEntityFilter().get(et)));
                 }
+
+                //This contains all changed blocks in this world.
+                overlapCreateChunkMap();
+
                 //This creates a runnable that calls code in this class
                 if (objWorldHandlerRunnable == null) {
                     objWorldHandlerRunnable = new WorldHandlerRunnable(objPlugin, this);
@@ -171,7 +193,7 @@ public class WorldHandler {
                 continue;
             } else {
                 if (objUpperWorld != null) {
-                    if (ohmUpperTeleportEntityFilter.get(ent.getType()) == true) {
+                    if (mapUpperTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
                     if (_EntityLocation.getY() > intUpperTeleportFrom) {
@@ -216,6 +238,114 @@ public class WorldHandler {
                 }
             }
         }
+    }
+
+    public void overlapUnload() {
+        if (mapChunkOverlapChangedBlocksType != null) {
+            for (Chunk chunk : mapChunkOverlapChangedBlocksType.keySet()) {
+                overlapUnloadChunk(chunk);
+                mapChunkOverlapChangedBlocksType.get(chunk).clear();
+            }
+            mapChunkOverlapChangedBlocksType.clear();
+            mapChunkOverlapChangedBlocksType = null;
+        }
+        if (mapChunkOverlapChangedBlocksData != null) {
+            for (Chunk chunk : mapChunkOverlapChangedBlocksData.keySet()) {
+                overlapUnloadChunk(chunk);
+                mapChunkOverlapChangedBlocksData.get(chunk).clear();
+            }
+            mapChunkOverlapChangedBlocksData.clear();
+            mapChunkOverlapChangedBlocksData = null;
+        }
+    }
+
+    public void overlapCreateChunkMap() {
+        overlapUnload();
+        mapChunkOverlapChangedBlocksType = new HashMap<Chunk, HashMap<Vector, Material>>();
+        mapChunkOverlapChangedBlocksData = new HashMap<Chunk, HashMap<Vector, Byte>>();
+    }
+
+    public void overlapLoadChunk(Chunk chunk) {
+        HashMap<Vector, Material> changedBlocksType = new HashMap<Vector, Material>();
+        HashMap<Vector, Byte> changedBlocksData = new HashMap<Vector, Byte>();
+        mapChunkOverlapChangedBlocksType.put(chunk, changedBlocksType);
+        mapChunkOverlapChangedBlocksData.put(chunk, changedBlocksData);
+        if (bolIsEnabled == true) {
+            if ((bolUpperOverlapEnabled == true) && (objUpperWorld != null)
+                && (intUpperOverlapTo <= objWorld.getMaxHeight()) && (intUpperOverlapFrom >= 0)) {
+                Chunk chunkUpper = objUpperWorld.getChunkAt(chunk.getX(), chunk.getZ());
+                if (chunkUpper != null) {
+                    boolean manualLoad = false;
+                    if (chunkUpper.isLoaded() == false) {
+                        //Quick & Dirty hack to prevent recursive calls due to infinite events...
+                        mapChunkOverlapChangedBlocksType.put(chunkUpper, new HashMap<Vector, Material>());
+                        chunkUpper.load(true);
+                        manualLoad = true;
+                    }
+                    for (int layer = 0; layer < intUpperOverlapLayers; layer++) {
+                        for (int x = 0; x < 16; x++) {
+                            for (int z = 0; z < 16; z++) {
+                                Block block = chunk.getBlock(x, intUpperOverlapTo - layer, z);
+                                Block blockUpper = chunkUpper.getBlock(x, intUpperOverlapFrom + layer, z);
+                                if (block != null) {
+                                    if (blockUpper != null) {
+                                        Vector pos = new Vector(x, intUpperOverlapTo - layer, z);
+                                        changedBlocksType.put(pos, block.getType());
+                                        changedBlocksData.put(pos, block.getData());
+                                        block.setType(blockUpper.getType());
+                                        block.setData(blockUpper.getData());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (manualLoad == true) {
+                        //Quick & Dirty hack to prevent recursive calls due to infinite events...
+                        mapChunkOverlapChangedBlocksType.remove(chunkUpper);
+                        chunkUpper.unload(false);
+                    }
+                }
+            }
+            if (bolLowerOverlapEnabled == true && objLowerWorld != null) {
+            }
+        }
+    }
+
+    public void overlapUnloadChunk(Chunk chunk) {
+        HashMap<Vector, Material> changedBlocksType = mapChunkOverlapChangedBlocksType.get(chunk);
+        HashMap<Vector, Byte> changedBlocksData = mapChunkOverlapChangedBlocksData.get(chunk);
+        for (Vector vec : changedBlocksType.keySet()) {
+            Block block = chunk.getBlock(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ());
+            Material oldType = changedBlocksType.get(vec);
+            Byte oldData = changedBlocksData.get(vec);
+            block.setType(oldType);
+            block.setData(oldData);
+        }
+        mapChunkOverlapChangedBlocksType.remove(chunk);
+        mapChunkOverlapChangedBlocksData.remove(chunk);
+    }
+
+    public void chunkLoadEvent(ChunkLoadEvent event) {
+        Chunk chunk = event.getChunk();
+        //Quick & Dirty hack to prevent recursive calls due to infinite events...
+        if (!mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
+            overlapLoadChunk(chunk);
+        }
+    }
+
+    public void chunkUnloadEvent(ChunkUnloadEvent event) {
+        Chunk chunk = event.getChunk();
+        if (mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
+            overlapUnloadChunk(chunk);
+        }
+    }
+    
+    public void blockPlaceEvent(BlockPlaceEvent event) {
+        
+    }
+    
+    public void blockBreakEvent(BlockBreakEvent event) {
+        
     }
 
     public World getWorld() {
