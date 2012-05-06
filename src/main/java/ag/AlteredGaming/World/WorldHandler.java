@@ -175,6 +175,11 @@ public class WorldHandler {
         }
     }
 
+    public World getWorld() {
+        return objWorld;
+    }
+    
+    //Event Handlers
     public void tickEntityMoved() {
         for (Entity ent : objWorld.getEntities()) {
             Location _EntityLocation = ent.getLocation();
@@ -306,7 +311,40 @@ public class WorldHandler {
                     }
                 }
             }
-            if (bolLowerOverlapEnabled == true && objLowerWorld != null) {
+            if ((bolLowerOverlapEnabled == true && objLowerWorld != null)
+                && (intLowerOverlapTo >= 0) && (intLowerOverlapFrom <= 255)) {
+                Chunk ChunkLower = objUpperWorld.getChunkAt(chunk.getX(), chunk.getZ());
+                if (ChunkLower != null) {
+                    boolean manualLoad = false;
+                    if (ChunkLower.isLoaded() == false) {
+                        //Quick & Dirty hack to prevent recursive calls due to infinite events...
+                        mapChunkOverlapChangedBlocksType.put(ChunkLower, new HashMap<Vector, Material>());
+                        ChunkLower.load(true);
+                        manualLoad = true;
+                    }
+                    for (int layer = 0; layer < intLowerOverlapLayers; layer++) {
+                        for (int x = 0; x < 16; x++) {
+                            for (int z = 0; z < 16; z++) {
+                                Block block = chunk.getBlock(x, intLowerOverlapTo + layer, z);
+                                Block blockUpper = ChunkLower.getBlock(x, intLowerOverlapFrom - layer, z);
+                                if (block != null) {
+                                    if (blockUpper != null) {
+                                        Vector pos = new Vector(x, intLowerOverlapTo - layer, z);
+                                        changedBlocksType.put(pos, block.getType());
+                                        changedBlocksData.put(pos, block.getData());
+                                        block.setType(blockUpper.getType());
+                                        block.setData(blockUpper.getData());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (manualLoad == true) {
+                        //Quick & Dirty hack to prevent recursive calls due to infinite events...
+                        mapChunkOverlapChangedBlocksType.remove(ChunkLower);
+                        ChunkLower.unload(false);
+                    }
+                }
             }
         }
     }
@@ -326,29 +364,38 @@ public class WorldHandler {
     }
 
     public void chunkLoadEvent(ChunkLoadEvent event) {
-        Chunk chunk = event.getChunk();
-        //Quick & Dirty hack to prevent recursive calls due to infinite events...
-        if (!mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
-            overlapLoadChunk(chunk);
+        if (bolIsEnabled == true) {
+            Chunk chunk = event.getChunk();
+            //Quick & Dirty hack to prevent recursive calls due to infinite events...
+            if (!mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
+                overlapLoadChunk(chunk);
+            }
         }
+
     }
 
     public void chunkUnloadEvent(ChunkUnloadEvent event) {
-        Chunk chunk = event.getChunk();
-        if (mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
-            overlapUnloadChunk(chunk);
+        if (bolIsEnabled == true) {
+            Chunk chunk = event.getChunk();
+            if (mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
+                overlapUnloadChunk(chunk);
+            }
         }
     }
-    
+
     public void blockPlaceEvent(BlockPlaceEvent event) {
-        
-    }
-    
-    public void blockBreakEvent(BlockBreakEvent event) {
-        
+        if (bolIsEnabled == true) {
+            Chunk chunk = event.getBlock().getChunk();
+            if (mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
+            }
+        }
     }
 
-    public World getWorld() {
-        return objWorld;
+    public void blockBreakEvent(BlockBreakEvent event) {
+        if (bolIsEnabled == true) {
+            Chunk chunk = event.getBlock().getChunk();
+            if (mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
+            }
+        }
     }
 }
