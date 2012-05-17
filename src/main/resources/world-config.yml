@@ -8,6 +8,15 @@
 #                                    in <DelayedTicks> time? This helps smooth
 #                                    out player experience but can cause un-
 #                                    expected behaviour.
+#  OverlapTriggers:                Container for Overlap Trigger settings.
+#    ChunkLoadUnload:              Should it trigger when un/loading a Chunk?
+#    BlockBreak:                   Should it trigger when a Block breaks?
+#    BlockBurn:                    Should it trigger when a Block burns?
+#    BlockFade:                    Should it trigger when a Block fades?
+#    BlockForm:                    Should it trigger when a Block forms?
+#    BlockGrow:                    Should it trigger when a Block grows?
+#    BlockPlace:                   Should it trigger when a Block is placed?
+#    BlockSpread:                  Should it trigger when a Block spreads?
 #Upper:                            Container for the 'Above' world stuff.
 #  World:                          What World is above this one? (null or an
 #                                    unknown world to disable)
@@ -49,6 +58,15 @@ World:
   Enabled: false
   DelayedTicks: 2
   DoPredictPosition: true
+  OverlapTriggers:
+    ChunkLoadUnload: true
+    BlockBreak: true
+    BlockBurn: true
+    BlockFade: true
+    BlockForm: true
+    BlockGrow: true
+    BlockPlace: true
+    BlockSpread: true
 Upper:
   World: null
   Overlap:

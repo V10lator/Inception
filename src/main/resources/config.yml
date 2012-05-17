@@ -8,6 +8,15 @@ Default:
         Enabled: false
         DelayedTicks: 2
         DoPredictPosition: true
+        OverlapTriggers:
+            ChunkLoadUnload: true
+            BlockBreak: true
+            BlockBurn: true
+            BlockFade: true
+            BlockForm: true
+            BlockGrow: true
+            BlockPlace: true
+            BlockSpread: true
     Upper:
         World: null
         Overlap:

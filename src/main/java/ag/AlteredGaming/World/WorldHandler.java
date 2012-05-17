@@ -41,6 +41,7 @@ public class WorldHandler {
     private boolean bolIsEnabled;
     private boolean bolDoPredictPosition;
     private int intDelayedTicks;
+    private HashMap<String, Boolean> ohmOverlapTriggers;
     private World objUpperWorld;
     private boolean bolUpperOverlapEnabled;
     private int intUpperOverlapFrom;
@@ -51,7 +52,7 @@ public class WorldHandler {
     private int intUpperTeleportTo;
     private boolean bolUpperTeleportPreserveEntityVelocity;
     private boolean bolUpperTeleportPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> mapUpperTeleportEntityFilter;
+    private EnumMap<EntityType, Boolean> oemUpperTeleportEntityFilter;
     private World objLowerWorld;
     private boolean bolLowerOverlapEnabled;
     private int intLowerOverlapFrom;
@@ -62,7 +63,8 @@ public class WorldHandler {
     private int intLowerTeleportTo;
     private boolean bolLowerTeleportPreserveEntityVelocity;
     private boolean bolLowerTeleportPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> ohmLowerTeleportEntityFilter;
+    private EnumMap<EntityType, Boolean> oemLowerTeleportEntityFilter;
+    private HashMap<String, Boolean> ohmLowerOverlapTriggerFilter;
     private WorldHandlerRunnable objWorldHandlerRunnable;
     private int intWorldHandlerRunnableTask = -1;
     private HashMap<Chunk, HashMap<Vector, Material>> mapChunkOverlapChangedBlocksType;
@@ -94,6 +96,20 @@ public class WorldHandler {
             intDelayedTicks = objWorldConfig.getInt("World.DelayedTicks", objPlugin.intDefaultDelayedTicks());
 
             if (bolIsEnabled == true) {
+                if (ohmOverlapTriggers != null) {
+                    ohmOverlapTriggers.clear();
+                    ohmOverlapTriggers = null;
+                }
+                ohmOverlapTriggers = new HashMap<String, Boolean>();
+                ohmOverlapTriggers.put("ChunkLoadUnload", objWorldConfig.getBoolean("World.OverlapTriggers.ChunkLoadUnload", objPlugin.ohmDefaultOverlapTriggers().get("ChunkLoadUnload")));
+                ohmOverlapTriggers.put("BlockPlace", objWorldConfig.getBoolean("World.OverlapTriggers.BlockPlace", objPlugin.ohmDefaultOverlapTriggers().get("BlockPlace")));
+                ohmOverlapTriggers.put("BlockBreak", objWorldConfig.getBoolean("World.OverlapTriggers.BlockBreak", objPlugin.ohmDefaultOverlapTriggers().get("BlockBreak")));
+                ohmOverlapTriggers.put("BlockBurn", objWorldConfig.getBoolean("World.OverlapTriggers.BlockBurn", objPlugin.ohmDefaultOverlapTriggers().get("BlockBurn")));
+                ohmOverlapTriggers.put("BlockFade", objWorldConfig.getBoolean("World.OverlapTriggers.BlockFade", objPlugin.ohmDefaultOverlapTriggers().get("BlockFade")));
+                ohmOverlapTriggers.put("BlockForm", objWorldConfig.getBoolean("World.OverlapTriggers.BlockForm", objPlugin.ohmDefaultOverlapTriggers().get("BlockForm")));
+                ohmOverlapTriggers.put("BlockGrow", objWorldConfig.getBoolean("World.OverlapTriggers.BlockGrow", objPlugin.ohmDefaultOverlapTriggers().get("BlockGrow")));
+                ohmOverlapTriggers.put("BlockSpread", objWorldConfig.getBoolean("World.OverlapTriggers.BlockSpread", objPlugin.ohmDefaultOverlapTriggers().get("BlockSpread")));
+
                 objUpperWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Upper.World", objPlugin.strDefaultUpperWorld()));
                 bolUpperOverlapEnabled = objWorldConfig.getBoolean("Upper.Overlap.Enabled", objPlugin.bolDefaultUpperOverlapEnabled());
                 intUpperOverlapFrom = objWorldConfig.getInt("Upper.Overlap.From", objPlugin.intDefaultUpperOverlapFrom());
@@ -104,13 +120,13 @@ public class WorldHandler {
                 intUpperTeleportTo = objWorldConfig.getInt("Upper.Teleport.To", objPlugin.intDefaultUpperTeleportTo());
                 bolUpperTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Upper.PreserveEntityVelocity", objPlugin.bolDefaultUpperTeleportPreserveEntityVelocity());
                 bolUpperTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Upper.PreserveEntityFallDistance", objPlugin.bolDefaultUpperTeleportPreserveEntityFallDistance());
-                if (mapUpperTeleportEntityFilter != null) {
-                    mapUpperTeleportEntityFilter.clear();
-                    mapUpperTeleportEntityFilter = null;
+                if (oemUpperTeleportEntityFilter != null) {
+                    oemUpperTeleportEntityFilter.clear();
+                    oemUpperTeleportEntityFilter = null;
                 }
-                mapUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+                oemUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
                 for (EntityType et : EntityType.values()) {
-                    mapUpperTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Upper.Teleport.EntityFilter." + et.getName(), objPlugin.ohmDefaultUpperTeleportEntityFilter().get(et)));
+                    oemUpperTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Upper.Teleport.EntityFilter." + et.getName(), objPlugin.oemDefaultUpperTeleportEntityFilter().get(et)));
                 }
 
                 objLowerWorld = objPlugin.getServer().getWorld(objWorldConfig.getString("Lower.World", objPlugin.strDefaultLowerWorld()));
@@ -123,13 +139,13 @@ public class WorldHandler {
                 intLowerTeleportTo = objWorldConfig.getInt("Lower.Teleport.To", objPlugin.intDefaultLowerTeleportTo());
                 bolLowerTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Lower.PreserveEntityVelocity", objPlugin.bolDefaultLowerTeleportPreserveEntityVelocity());
                 bolLowerTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Lower.PreserveEntityFallDistance", objPlugin.bolDefaultLowerTeleportPreserveEntityFallDistance());
-                if (ohmLowerTeleportEntityFilter != null) {
-                    ohmLowerTeleportEntityFilter.clear();
-                    ohmLowerTeleportEntityFilter = null;
+                if (oemLowerTeleportEntityFilter != null) {
+                    oemLowerTeleportEntityFilter.clear();
+                    oemLowerTeleportEntityFilter = null;
                 }
-                ohmLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+                oemLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
                 for (EntityType et : EntityType.values()) {
-                    ohmLowerTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Lower.Teleport.EntityFilter." + et.getName(), objPlugin.ohmDefaultLowerTeleportEntityFilter().get(et)));
+                    oemLowerTeleportEntityFilter.put(et, objWorldConfig.getBoolean("Lower.Teleport.EntityFilter." + et.getName(), objPlugin.oemDefaultLowerTeleportEntityFilter().get(et)));
                 }
 
                 //This contains all changed blocks in this world.
@@ -204,7 +220,7 @@ public class WorldHandler {
                 continue;
             } else {
                 if (objUpperWorld != null) {
-                    if (mapUpperTeleportEntityFilter.get(ent.getType()) == true) {
+                    if (oemUpperTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
                     if (_EntityLocation.getY() >= intUpperTeleportFrom) {
@@ -226,7 +242,7 @@ public class WorldHandler {
                     }
                 }
                 if (objLowerWorld != null) {
-                    if (ohmLowerTeleportEntityFilter.get(ent.getType()) == true) {
+                    if (oemLowerTeleportEntityFilter.get(ent.getType()) == true) {
                         continue;
                     }
                     if (_EntityLocation.getY() <= intLowerTeleportFrom) {
@@ -406,7 +422,7 @@ public class WorldHandler {
      * External
      */
     public void chunkLoadEvent(ChunkLoadEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("ChunkLoadUnload")) {
             Chunk chunk = event.getChunk();
             //Quick & Dirty hack to prevent recursive calls due to infinite events...
             if (!mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
@@ -417,7 +433,7 @@ public class WorldHandler {
     }
 
     public void chunkUnloadEvent(ChunkUnloadEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("ChunkLoadUnload")) {
             Chunk chunk = event.getChunk();
             if (mapChunkOverlapChangedBlocksType.containsKey(chunk)) {
                 overlapUnloadChunk(chunk);
@@ -426,44 +442,44 @@ public class WorldHandler {
     }
 
     public void blockPlaceEvent(BlockPlaceEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockPlace")) {
             overlapBlockPlace(event.getBlockPlaced());
 
         }
     }
 
     public void blockBreakEvent(BlockBreakEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockBreak")) {
             overlapBlockBreak(event.getBlock());
         }
     }
 
     public void blockBurnEvent(BlockBurnEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockBurn")) {
             overlapBlockBreak(event.getBlock());
         }
     }
 
     public void blockFadeEvent(BlockFadeEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockFade")) {
             overlapBlockBreak(event.getBlock());
         }
     }
 
     public void blockFormEvent(BlockFormEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockForm")) {
             overlapBlockPlace(event.getBlock());
         }
     }
 
     public void blockGrowEvent(BlockGrowEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockGrow")) {
             overlapBlockPlace(event.getBlock());
         }
     }
 
     public void blockSpreadEvent(BlockSpreadEvent event) {
-        if (bolIsEnabled == true) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockSpread")) {
             overlapBlockPlace(event.getBlock());
         }
     }
