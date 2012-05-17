@@ -68,8 +68,8 @@ Default:
         World: null
         Overlap:
             Enabled: false
-            From: 0
-            To: 255
+            From: 255
+            To: 0
             Layers: 0
         Teleport:
             Enabled: false

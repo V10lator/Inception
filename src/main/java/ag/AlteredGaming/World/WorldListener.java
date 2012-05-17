@@ -5,7 +5,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockFadeEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -64,6 +69,41 @@ public class WorldListener
     public void onBlockBreak(BlockBreakEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockBreakEvent(event);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBlockBurn(BlockBurnEvent event) {
+        if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
+            objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockBurnEvent(event);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBlockBurn(BlockFadeEvent event) {
+        if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
+            objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockFadeEvent(event);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBlockBurn(BlockFormEvent event) {
+        if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
+            objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockFormEvent(event);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBlockBurn(BlockGrowEvent event) {
+        if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
+            objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockGrowEvent(event);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBlockBurn(BlockSpreadEvent event) {
+        if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
+            objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockSpreadEvent(event);
         }
     }
 }

@@ -18,8 +18,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
 public class Inception
         extends JavaPlugin {
@@ -226,6 +226,8 @@ public class Inception
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         args = util.reparseArgs(args);
 
+        sender.sendMessage(((Player)sender).getLocation().toString());
+        
         if (label.equals("inception")) {
             return onCommand_inception(sender, command, label, args);
         }
