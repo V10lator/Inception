@@ -250,7 +250,6 @@ public class WorldHandler {
         if (mapChunkOverlapChangedBlocksType != null) {
             for (Chunk chunk : mapChunkOverlapChangedBlocksType.keySet()) {
                 overlapUnloadChunk(chunk);
-                mapChunkOverlapChangedBlocksType.get(chunk).clear();
             }
             mapChunkOverlapChangedBlocksType.clear();
             mapChunkOverlapChangedBlocksType = null;
@@ -258,7 +257,6 @@ public class WorldHandler {
         if (mapChunkOverlapChangedBlocksData != null) {
             for (Chunk chunk : mapChunkOverlapChangedBlocksData.keySet()) {
                 overlapUnloadChunk(chunk);
-                mapChunkOverlapChangedBlocksData.get(chunk).clear();
             }
             mapChunkOverlapChangedBlocksData.clear();
             mapChunkOverlapChangedBlocksData = null;
@@ -316,7 +314,7 @@ public class WorldHandler {
             }
             if ((bolLowerOverlapEnabled == true && objLowerWorld != null)
                 && (intLowerOverlapTo >= 0) && (intLowerOverlapFrom <= 255)) {
-                Chunk ChunkLower = objUpperWorld.getChunkAt(chunk.getX(), chunk.getZ());
+                Chunk ChunkLower = objLowerWorld.getChunkAt(chunk.getX(), chunk.getZ());
                 if (ChunkLower != null) {
                     boolean manualLoad = false;
                     if (ChunkLower.isLoaded() == false) {
@@ -368,6 +366,24 @@ public class WorldHandler {
         mapChunkOverlapChangedBlocksData.remove(chunk);
     }
 
+    private void overlapBlockPlace(Block block) {
+        Location localPosition = block.getLocation();
+        if ((localPosition.getY() <= intUpperOverlapTo) && (localPosition.getY() > intUpperOverlapTo + intUpperOverlapLayers)) {
+            objPlugin.getWorldHandlers().get(objUpperWorld).replaceBlock(block, new Vector(block.getX(), intUpperOverlapTo - block.getY(), block.getZ()), false);
+        } else if ((localPosition.getY() >= intLowerOverlapTo) && (localPosition.getY() < intLowerOverlapTo + intLowerOverlapLayers)) {
+            objPlugin.getWorldHandlers().get(objLowerWorld).replaceBlock(block, new Vector(block.getX(), block.getY() - intLowerOverlapTo, block.getZ()), true);
+        }
+    }
+
+    private void overlapBlockBreak(Block block) {
+        Location localPosition = block.getLocation();
+        if ((localPosition.getY() <= intUpperOverlapTo) && (localPosition.getY() > intUpperOverlapTo + intUpperOverlapLayers)) {
+            objPlugin.getWorldHandlers().get(objUpperWorld).replaceBlock(block, new Vector(block.getX(), intUpperOverlapTo - block.getY(), block.getZ()), false);
+        } else if ((localPosition.getY() >= intLowerOverlapTo) && (localPosition.getY() < intLowerOverlapTo + intLowerOverlapLayers)) {
+            objPlugin.getWorldHandlers().get(objLowerWorld).replaceBlock(block, new Vector(block.getX(), block.getY() - intLowerOverlapTo, block.getZ()), true);
+        }
+    }
+
     /*
      * External
      */
@@ -392,21 +408,43 @@ public class WorldHandler {
     }
 
     public void blockPlaceEvent(BlockPlaceEvent event) {
-        
+        if (bolIsEnabled == true) {
+            overlapBlockPlace(event.getBlock());
+        }
     }
-    
+
     public void blockBreakEvent(BlockBreakEvent event) {
-        
+        if (bolIsEnabled == true) {
+            overlapBlockBreak(event.getBlock());
+        }
     }
-    
+
     //Listed Temporary Blocks
-    private void removeListedBlock(Chunk chunk, int X, int Y, int Z) {
+    private void removeListedBlock(Chunk chunk, Vector Position) {
         HashMap<Vector, Material> changedBlocksType = mapChunkOverlapChangedBlocksType.get(chunk);
         HashMap<Vector, Byte> changedBlocksData = mapChunkOverlapChangedBlocksData.get(chunk);
-        Vector pos = new Vector(X, Y, Z);
-        if (changedBlocksType.containsKey(pos)) {
-            changedBlocksType.remove(pos);
-            changedBlocksData.remove(pos);
+        if ((changedBlocksType != null) && (changedBlocksData != null)) {
+            if (changedBlocksType.containsKey(Position)) {
+                changedBlocksType.remove(Position);
+                changedBlocksData.remove(Position);
+            }
         }
+    }
+
+    public void replaceBlock(Block with, Vector Position, boolean cameFromAbove) {
+        Vector localPosition = Position.clone();
+        if (cameFromAbove) {
+            localPosition.setY(intUpperOverlapTo - Position.getBlockY());
+        } else {
+            localPosition.setY(intLowerOverlapTo + Position.getBlockY());
+        }
+        objPlugin.getLogger().info(Position.toString());
+        objPlugin.getLogger().info(localPosition.toString());
+
+        Block block = objWorld.getBlockAt(localPosition.getBlockX(), localPosition.getBlockY(), localPosition.getBlockZ());
+        Chunk chunk = objWorld.getChunkAt(block);
+        removeListedBlock(chunk, block.getLocation().toVector());
+        block.setData(with.getData());
+        block.setType(with.getType());
     }
 }
