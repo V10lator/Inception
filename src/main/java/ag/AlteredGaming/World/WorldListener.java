@@ -33,7 +33,6 @@ public class WorldListener
     public void onWorldLoad(WorldLoadEvent event) {
         if (!objPlugin.getWorldHandlers().containsKey(event.getWorld())) {
             objPlugin.getWorldHandlers().put(event.getWorld(), new WorldHandler(objPlugin, event.getWorld()));
-            objPlugin.getServer().getScheduler().scheduleSyncDelayedTask(objPlugin, new WorldListenerRunnable(objPlugin, objPlugin.getWorldHandlers().get(event.getWorld())));
         }
     }
 
@@ -72,35 +71,35 @@ public class WorldListener
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockBreakEvent(event);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockBurnEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockBurnEvent(event);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockFadeEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockFadeEvent(event);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockFormEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockFormEvent(event);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockGrowEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockGrowEvent(event);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockSpreadEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {

@@ -18,7 +18,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Inception
@@ -119,6 +118,13 @@ public class Inception
 
         //Hashmap for WorldHandler storage
         ohmWorldHandlers = new HashMap<World, WorldHandler>();
+
+        //Add all loaded Worlds as WorldHandlers
+        for (World world : getServer().getWorlds()) {
+            if (!ohmWorldHandlers.containsKey(world)) {
+                ohmWorldHandlers.put(world, new WorldHandler(this, world));
+            }
+        }
 
         //Event Listeners
         objLogger.fine("Registering World Listener...");
