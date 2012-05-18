@@ -42,6 +42,7 @@ public class WorldHandler {
     private boolean bolDoPredictPosition;
     private int intDelayedTicks;
     private HashMap<String, Boolean> ohmOverlapTriggers;
+    private World objSyncTimeTo;
     private World objUpperWorld;
     private boolean bolUpperOverlapEnabled;
     private int intUpperOverlapFrom;
@@ -94,7 +95,8 @@ public class WorldHandler {
             bolIsEnabled = objWorldConfig.getBoolean("World.Enabled", objPlugin.bolDefaultIsEnabled());
             bolDoPredictPosition = objWorldConfig.getBoolean("World.DoPredictPosition", objPlugin.bolDefaultDoPredictPosition());
             intDelayedTicks = objWorldConfig.getInt("World.DelayedTicks", objPlugin.intDefaultDelayedTicks());
-
+            objSyncTimeTo = objPlugin.getServer().getWorld(objWorldConfig.getString("World.SyncTimeTo", objPlugin.strDefaultSyncTimeTo()));
+            
             if (bolIsEnabled == true) {
                 if (ohmOverlapTriggers != null) {
                     ohmOverlapTriggers.clear();
@@ -202,7 +204,11 @@ public class WorldHandler {
     /*
      * Internal Update Methods
      */
-    public void tickEntityMoved() {
+    public void tickWorldUpdateCheck() {
+        if (objSyncTimeTo != null) {
+            objWorld.setTime(objSyncTimeTo.getTime());
+        }
+        
         for (Entity ent : objWorld.getEntities()) {
             Location _EntityLocation = ent.getLocation();
             Vector _EntityVelocity = ent.getVelocity();

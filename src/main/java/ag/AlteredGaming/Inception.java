@@ -41,6 +41,7 @@ public class Inception
     private boolean bolDefaultDoPredictPosition;
     private int intDefaultDelayedTicks;
     private HashMap<String, Boolean> ohmDefaultOverlapTriggers;
+    private String strDefaultSyncTimeTo;
     private String strDefaultUpperWorld;
     private boolean bolDefaultUpperOverlapEnabled;
     private int intDefaultUpperOverlapFrom;
@@ -175,6 +176,7 @@ public class Inception
             bolDefaultIsEnabled = objConfiguration.getBoolean("Default.World.Enabled", true);
             bolDefaultDoPredictPosition = objConfiguration.getBoolean("Default.World.DoPredictPosition", true);
             intDefaultDelayedTicks = objConfiguration.getInt("Default.World.DelayedTicks", 1);
+            strDefaultSyncTimeTo = objConfiguration.getString("Default.World.SyncTimeTo", "");
 
             if (ohmDefaultOverlapTriggers != null) {
                 ohmDefaultOverlapTriggers.clear();
@@ -457,5 +459,9 @@ public class Inception
 
     public HashMap<String, Boolean> ohmDefaultOverlapTriggers() {
         return ohmDefaultOverlapTriggers;
+    }
+
+    public String strDefaultSyncTimeTo() {
+        return strDefaultSyncTimeTo;
     }
 }

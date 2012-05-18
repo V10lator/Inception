@@ -17,6 +17,8 @@
 #    BlockGrow:                    Should it trigger when a Block grows?
 #    BlockPlace:                   Should it trigger when a Block is placed?
 #    BlockSpread:                  Should it trigger when a Block spreads?
+#  SyncTimeTo:                     With what World should it synchronize the
+#                                    time with?
 #Upper:                            Container for the 'Above' world stuff.
 #  World:                          What World is above this one? (null or an
 #                                    unknown world to disable)
@@ -67,6 +69,7 @@ World:
     BlockGrow: true
     BlockPlace: true
     BlockSpread: true
+  SyncTimeTo: null
 Upper:
   World: null
   Overlap:
