@@ -83,7 +83,7 @@ public class Inception
         } catch (NullPointerException ex) {
             objLogger.log(Level.SEVERE, null, ex);
         }
-        strPluginDirectory = this.getDataFolder().getPath();
+        strPluginDirectory = this.getDataFolder().getAbsolutePath();
         objPluginDirectory = new File(strPluginDirectory);
         strWorldConfigDirectory = strPluginDirectory + "/per-world/";
         objWorldConfigDirectory = new File(strWorldConfigDirectory);
@@ -239,8 +239,6 @@ public class Inception
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         args = util.reparseArgs(args);
-
-        sender.sendMessage(((Player) sender).getLocation().toString());
 
         if (label.equals("inception")) {
             return onCommand_inception(sender, command, label, args);

@@ -55,14 +55,22 @@ public class EasyZipFile {
     }
 
     public File unzipPath(String path, File toPath) {
-        return unzipPath(path, toPath.getAbsoluteFile());
+        return unzipPathAs(path, toPath.getAbsolutePath().concat(path.substring(path.lastIndexOf("/") + 1)));
     }
 
     public File unzipPath(String path, String toPath) {
+        return unzipPathAs(path, toPath.concat(path.substring(path.lastIndexOf("/") + 1)));
+    }
+
+    public File unzipPathAs(String path, String toPath) {
+        return unzipPathAs(path, new File(toPath));
+    }
+
+    public File unzipPathAs(String path, File toPath) {
         ZipEntry objThePath = findPath(path);
         if (objThePath != null) {
-            File objExtractedPath = new File(toPath + "/" + objThePath.getName());
-            Logger.getLogger(Inception.class.getName()).fine(toPath + "/" + objThePath.getName());
+            File objExtractedPath = toPath;
+            Logger.getLogger(Inception.class.getName()).fine(objExtractedPath.getPath());
             if (!objThePath.isDirectory()) {
                 if (objExtractedPath.isFile()) {
                     if (objExtractedPath.exists()) {
@@ -91,16 +99,6 @@ public class EasyZipFile {
             }
         }
         return null;
-    }
-
-    public File unzipPathAs(String path, String toPath) {
-        return unzipPathAs(path, new File(toPath));
-    }
-
-    public File unzipPathAs(String path, File toPath) {
-        File objPath = unzipPath(path, System.getProperty("java.io.tmpdir"));
-        objPath.renameTo(toPath);
-        return objPath;
     }
 
     public void open()
