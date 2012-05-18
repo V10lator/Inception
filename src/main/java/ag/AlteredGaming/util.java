@@ -143,6 +143,8 @@ public class util {
             case PLAYER:
             case SPLASH_POTION:
             case EGG:
+            case PRIMED_TNT:
+            case FALLING_BLOCK:
             case FISHING_HOOK:
             case LIGHTNING:
             case WEATHER:
@@ -252,7 +254,7 @@ public class util {
             ((Item) newEnt).setPickupDelay(((Item) ent).getPickupDelay());
         }
         if (newEnt instanceof LivingEntity) {
-            ((LivingEntity) newEnt).setHealth((((LivingEntity) ent).getHealth() >= 0 ? ((LivingEntity) ent).getHealth() : 0 ));
+            ((LivingEntity) newEnt).setHealth((((LivingEntity) ent).getHealth() >= 0 ? (((LivingEntity) ent).getHealth() <= 1 ? ((LivingEntity) ent).getHealth() : 1) : 0 ));
             ((LivingEntity) newEnt).setLastDamage(((LivingEntity) ent).getLastDamage());
             ((LivingEntity) newEnt).setMaximumAir(((LivingEntity) ent).getMaximumAir());
             ((LivingEntity) newEnt).setMaximumNoDamageTicks(((LivingEntity) ent).getMaximumNoDamageTicks());
