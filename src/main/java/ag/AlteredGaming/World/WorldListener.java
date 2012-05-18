@@ -33,6 +33,7 @@ public class WorldListener
     public void onWorldLoad(WorldLoadEvent event) {
         if (!objPlugin.getWorldHandlers().containsKey(event.getWorld())) {
             objPlugin.getWorldHandlers().put(event.getWorld(), new WorldHandler(objPlugin, event.getWorld()));
+            objPlugin.getServer().getScheduler().scheduleSyncDelayedTask(objPlugin, new WorldListenerRunnable(objPlugin, objPlugin.getWorldHandlers().get(event.getWorld())));
         }
     }
 
