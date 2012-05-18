@@ -358,8 +358,8 @@ public class WorldHandler {
                                     if (blockLower != null) {
                                         if (block.getType() == Material.AIR) {
                                             Vector pos = new Vector(x, intLowerOverlapTo + layer, z);
-                                            changedBlocksType.put(pos, block.getType());
-                                            changedBlocksData.put(pos, block.getData());
+                                            changedBlocksType.put(pos, block.getType()); //This causes a java.lang.OutOfMemoryError. Figure out why.
+                                            changedBlocksData.put(pos, block.getData()); 
                                             block.setType(blockLower.getType());
                                             block.setData(blockLower.getData());
                                         }
