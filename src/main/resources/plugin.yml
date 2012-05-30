@@ -7,6 +7,7 @@ website: http://alteredgaming.de/
 main: ag.AlteredGaming.Inception
 prefix: "Inception"
 load: POSTWORLD
+softdepend: [ Multiverse-Core ]
 commands:
   Inception:
     description: Control Inception with this command
