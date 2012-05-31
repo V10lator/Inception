@@ -26,6 +26,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 /**
@@ -64,6 +65,7 @@ public class WorldHandler {
     private int intLowerTeleportTo;
     private boolean bolLowerTeleportPreserveEntityVelocity;
     private boolean bolLowerTeleportPreserveEntityFallDistance;
+    private boolean bolLowerTeleportPreventFallDamage;
     private EnumMap<EntityType, Boolean> oemLowerTeleportEntityFilter;
     private HashMap<String, Boolean> ohmLowerOverlapTriggerFilter;
     private WorldHandlerRunnable objWorldHandlerRunnable;
@@ -141,6 +143,7 @@ public class WorldHandler {
                 intLowerTeleportTo = objWorldConfig.getInt("Lower.Teleport.To", objPlugin.intDefaultLowerTeleportTo());
                 bolLowerTeleportPreserveEntityVelocity = objWorldConfig.getBoolean("Lower.PreserveEntityVelocity", objPlugin.bolDefaultLowerTeleportPreserveEntityVelocity());
                 bolLowerTeleportPreserveEntityFallDistance = objWorldConfig.getBoolean("Lower.PreserveEntityFallDistance", objPlugin.bolDefaultLowerTeleportPreserveEntityFallDistance());
+                bolLowerTeleportPreventFallDamage = objWorldConfig.getBoolean("Lower.Teleport.PreventFallDamage", objPlugin.bolDefaultLowerTeleportPreventFallDamage());
                 if (oemLowerTeleportEntityFilter != null) {
                     oemLowerTeleportEntityFilter.clear();
                     oemLowerTeleportEntityFilter = null;
@@ -266,6 +269,9 @@ public class WorldHandler {
                         }
                         if (!bolLowerTeleportPreserveEntityFallDistance) {
                             tent.setFallDistance(0);
+                        }
+                        if (bolLowerTeleportPreventFallDamage) {
+                            tent.setMetadata("takeFallDamage", new FixedMetadataValue(objPlugin, true));
                         }
                     }
                 }

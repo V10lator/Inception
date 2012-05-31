@@ -11,6 +11,8 @@ import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -104,6 +106,14 @@ public class WorldListener
     public void onBlockBurn(BlockSpreadEvent event) {
         if (objPlugin.getWorldHandlers().containsKey(event.getBlock().getWorld())) {
             objPlugin.getWorldHandlers().get(event.getBlock().getWorld()).blockSpreadEvent(event);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getCause() == DamageCause.FALL) {
+            event.setCancelled(event.getEntity().hasMetadata("takeFallDamage"));
+            event.getEntity().removeMetadata("takeFallDamage", objPlugin);
         }
     }
 }

@@ -54,6 +54,8 @@
 #                                    players?
 #    PreserveEntityVelocity:       Should the Entity keep it's velocity?
 #    PreserveEntityFallDistance:   Should the Entity keep it's fall distance?
+#    PreventFallDamage:            If true, will prevent fall damage from fall-
+#                                    ing too far.
 #    EntityFilter:                 A list of Entities to filter(true = disallow)
 
 World:
@@ -61,7 +63,7 @@ World:
   DelayedTicks: 2
   DoPredictPosition: true
   OverlapTriggers:
-    ChunkLoadUnload: true
+    ChunkLoadUnload: false
     BlockBreak: true
     BlockBurn: true
     BlockFade: true
@@ -139,6 +141,7 @@ Lower:
     To: 254
     PreserveEntityVelocity: true
     PreserveEntityFallDistance: true
+    PreventFallDamage: true
     EntityFilter:
         #Normal entities
         Item: false

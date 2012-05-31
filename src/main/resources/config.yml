@@ -4,129 +4,130 @@
 #                                    See the header of world-config.yml.
 
 Default:
-    World:
-        Enabled: false
-        DelayedTicks: 2
-        DoPredictPosition: true
-        OverlapTriggers:
-            ChunkLoadUnload: true
-            BlockBreak: true
-            BlockBurn: true
-            BlockFade: true
-            BlockForm: true
-            BlockGrow: true
-            BlockPlace: true
-            BlockSpread: true
-        SyncTimeTo: null
-    Upper:
-        World: null
-        Overlap:
-            Enabled: false
-            From: 0
-            To: 255
-            Layers: 0
-        Teleport:
-            Enabled: false
-            From: 255
-            To: 1
-            PreserveEntityVelocity: true
-            PreserveEntityFallDistance: true
-            EntityFilter:
-                #Normal entities
-                Item: false
-                XPOrb: false
-                Painting: true
-                Arrow: false
-                Snowball: false
-                Fireball: false
-                SmallFireball: false
-                ThrownEnderpearl: false
-                EyeOfEnderSignal: false
-                ThrownEXpBottle: false
-                PrimedTnt: false
-                FallingSand: false
-                Minecart: false
-                Boat: false
-                #NPCs - Aggressive
-                Creeper: false
-                Skeleton: false
-                Spider: false
-                Giant: false
-                Zombie: false
-                Slime: false
-                Ghast: false
-                PigZombie: false
-                Enderman: false
-                CaveSpider: false
-                Silverfish: false
-                Blaze: false
-                LavaSlime: false
-                EnderDragon: true
-                #NPCs - Passive
-                Pig: false
-                Sheep: false
-                Cow: false
-                Chicken: false
-                Squid: false
-                Wolf: false
-                MushroomCow: false
-                SnowMan: false
-                Ozelot: false
-                VillagerGolem: false
-                Villager: false
-    Lower:
-        World: null
-        Overlap:
-            Enabled: false
-            From: 255
-            To: 0
-            Layers: 0
-        Teleport:
-            Enabled: false
-            From: 0
-            To: 254
-            PreserveEntityVelocity: true
-            PreserveEntityFallDistance: true
-            EntityFilter:
-                #Normal entities
-                Item: false
-                XPOrb: false
-                Painting: true
-                Arrow: false
-                Snowball: false
-                Fireball: false
-                SmallFireball: false
-                ThrownEnderpearl: false
-                EyeOfEnderSignal: false
-                ThrownEXpBottle: false
-                PrimedTnt: false
-                FallingSand: false
-                Minecart: false
-                Boat: false
-                #NPCs - Aggressive
-                Creeper: false
-                Skeleton: false
-                Spider: false
-                Giant: false
-                Zombie: false
-                Slime: false
-                Ghast: false
-                PigZombie: false
-                Enderman: false
-                CaveSpider: false
-                Silverfish: false
-                Blaze: false
-                LavaSlime: false
-                EnderDragon: true
-                #NPCs - Passive
-                Pig: false
-                Sheep: false
-                Cow: false
-                Chicken: false
-                Squid: false
-                Wolf: false
-                MushroomCow: false
-                SnowMan: false
-                Ozelot: false
-                VillagerGolem: false
-                Villager: false
+  World:
+    Enabled: false
+    DelayedTicks: 2
+    DoPredictPosition: true
+    OverlapTriggers:
+      ChunkLoadUnload: false
+      BlockBreak: true
+      BlockBurn: true
+      BlockFade: true
+      BlockForm: true
+      BlockGrow: true
+      BlockPlace: true
+      BlockSpread: true
+    SyncTimeTo: null
+  Upper:
+    World: null
+    Overlap:
+      Enabled: false
+      From: 0
+      To: 255
+      Layers: 0
+    Teleport:
+      Enabled: false
+      From: 255
+      To: 1
+      PreserveEntityVelocity: true
+      PreserveEntityFallDistance: true
+      EntityFilter:
+        #Normal entities
+        Item: false
+        XPOrb: false
+        Painting: true
+        Arrow: false
+        Snowball: false
+        Fireball: false
+        SmallFireball: false
+        ThrownEnderpearl: false
+        EyeOfEnderSignal: false
+        ThrownEXpBottle: false
+        PrimedTnt: false
+        FallingSand: false
+        Minecart: false
+        Boat: false
+        #NPCs - Aggressive
+        Creeper: false
+        Skeleton: false
+        Spider: false
+        Giant: false
+        Zombie: false
+        Slime: false
+        Ghast: false
+        PigZombie: false
+        Enderman: false
+        CaveSpider: false
+        Silverfish: false
+        Blaze: false
+        LavaSlime: false
+        EnderDragon: true
+        #NPCs - Passive
+        Pig: false
+        Sheep: false
+        Cow: false
+        Chicken: false
+        Squid: false
+        Wolf: false
+        MushroomCow: false
+        SnowMan: false
+        Ozelot: false
+        VillagerGolem: false
+        Villager: false
+  Lower:
+    World: null
+    Overlap:
+      Enabled: false
+      From: 255
+      To: 0
+      Layers: 0
+    Teleport:
+      Enabled: false
+      From: 0
+      To: 254
+      PreserveEntityVelocity: true
+      PreserveEntityFallDistance: true
+      PreventFallDamage: true
+      EntityFilter:
+        #Normal entities
+        Item: false
+        XPOrb: false
+        Painting: true
+        Arrow: false
+        Snowball: false
+        Fireball: false
+        SmallFireball: false
+        ThrownEnderpearl: false
+        EyeOfEnderSignal: false
+        ThrownEXpBottle: false
+        PrimedTnt: false
+        FallingSand: false
+        Minecart: false
+        Boat: false
+        #NPCs - Aggressive
+        Creeper: false
+        Skeleton: false
+        Spider: false
+        Giant: false
+        Zombie: false
+        Slime: false
+        Ghast: false
+        PigZombie: false
+        Enderman: false
+        CaveSpider: false
+        Silverfish: false
+        Blaze: false
+        LavaSlime: false
+        EnderDragon: true
+        #NPCs - Passive
+        Pig: false
+        Sheep: false
+        Cow: false
+        Chicken: false
+        Squid: false
+        Wolf: false
+        MushroomCow: false
+        SnowMan: false
+        Ozelot: false
+        VillagerGolem: false
+        Villager: false

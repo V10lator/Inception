@@ -62,6 +62,7 @@ public class Inception
     private int intDefaultLowerTeleportTo;
     private boolean bolDefaultLowerTeleportPreserveEntityVelocity;
     private boolean bolDefaultLowerTeleportPreserveEntityFallDistance;
+    private boolean bolDefaultLowerTeleportPreventFallDamage;
     private EnumMap<EntityType, Boolean> oemDefaultLowerTeleportEntityFilter;
     //WorldListener to catch world events
     private WorldListener objWorldListener;
@@ -222,6 +223,7 @@ public class Inception
             intDefaultLowerTeleportTo = objConfiguration.getInt("Default.Lower.Teleport.To", 254);
             bolDefaultLowerTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Lower.PreserveEntityVelocity", true);
             bolDefaultLowerTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Lower.PreserveEntityFallDistance", true);
+            bolDefaultLowerTeleportPreventFallDamage = objConfiguration.getBoolean("Default.Lower.PreventFallDamage", true);
             oemDefaultLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
                 oemDefaultLowerTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.Teleport.EntityFilter." + et.getName(), false));
@@ -469,5 +471,9 @@ public class Inception
 
     public String strDefaultSyncTimeTo() {
         return strDefaultSyncTimeTo;
+    }
+
+    public boolean bolDefaultLowerTeleportPreventFallDamage() {
+        return bolDefaultLowerTeleportPreventFallDamage;
     }
 }
