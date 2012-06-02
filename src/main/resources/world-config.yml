@@ -1,22 +1,187 @@
-upper:
-  #What world should climbing go to? (null or unknown world to disable climbing)
-  world: null
-  #What layer should the overlapping take blocks & events from?
-  overlapstart: 0
-  #How many layers should we copy into this world from the above world?
-  overlap: 0
-  #At what layer should we teleport entities and players?
-  teleport: 255
-  #To what layer should we teleport entities and players?
-  teleporttarget: 1
-lower:
-  #What world should falling go to? (null or unknown world to disable falling)
-  world: null
-  #What layer should the overlapping take blocks & events from?
-  overlapstart: 255
-  #How many layers should we copy into this world from the below world?
-  overlap: 0
-  #At what layer should we teleport entities and players?
-  teleport: 0
-  #To what layer should we teleport entities and players?
-  teleporttarget: 254
+#Node                              Explanation
+#-------------------------------------------------------------------------------
+#World:                            Container for WorldHandler specific things.
+#  Enabled:                        Is this WorldHandler enabled?
+#  DelayedTicks:                   How many ticks lie between each teleport
+#                                    check? (In Ticks, 0 and below disable)
+#  DoPredictPosition:              Should we predict where an entity will be
+#                                    in <DelayedTicks> time? This helps smooth
+#                                    out player experience but can cause un-
+#                                    expected behaviour.
+#  OverlapTriggers:                Container for Overlap Trigger settings.
+#    ChunkLoadUnload:              Should it trigger when un/loading a Chunk?
+#    BlockBreak:                   Should it trigger when a Block breaks?
+#    BlockBurn:                    Should it trigger when a Block burns?
+#    BlockFade:                    Should it trigger when a Block fades?
+#    BlockForm:                    Should it trigger when a Block forms?
+#    BlockGrow:                    Should it trigger when a Block grows?
+#    BlockPlace:                   Should it trigger when a Block is placed?
+#    BlockSpread:                  Should it trigger when a Block spreads?
+#  SyncTimeTo:                     With what World should it synchronize the
+#                                    time with?
+#Upper:                            Container for the 'Above' world stuff.
+#  World:                          What World is above this one? (null or an
+#                                    unknown world to disable)
+#  Overlap:                        Container for overlapping the above world.
+#    Enabled:                      Is overlapping enabled?
+#    From:                         From what layer in the above world should we
+#                                    start from?
+#    To:                           To what layer should these get copied?
+#    Layers:                       How many layers should get copied?
+#  Teleport:                       Container for teleporting to the above world.
+#    Enabled:                      Is teleporting enabled?
+#    From:                         From what layer (and above) should we tele-
+#                                    port players?
+#    To:                           To what layer (and above) should we teleport 
+#                                    players?
+#    PreserveEntityVelocity:       Should the Entity keep it's velocity?
+#    PreserveEntityFallDistance:   Should the Entity keep it's fall distance?
+#    EntityFilter:                 A list of Entities to filter(true = disallow)
+#Lower:                            Container for the 'Below' world stuff.
+#  World:                          What World is below this one? (null or an
+#                                    unknown world to disable)
+#  Overlap:                        Container for overlapping the below world.
+#    Enabled:                      Is overlapping enabled?
+#    From:                         From what layer in the above world should we
+#                                    start from?
+#    To:                           To what layer should these get copied?
+#    Layers:                       How many layers should get copied?
+#  Teleport:                       Container for teleporting to the below world.
+#    Enabled:                      Is teleporting enabled?
+#    From:                         From what layer (and below) should we tele-
+#                                    port players?
+#    To:                           To what layer (and below) should we teleport 
+#                                    players?
+#    PreserveEntityVelocity:       Should the Entity keep it's velocity?
+#    PreserveEntityFallDistance:   Should the Entity keep it's fall distance?
+#    PreventFallDamage:            If true, will prevent fall damage from fall-
+#                                    ing too far.
+#    EntityFilter:                 A list of Entities to filter(true = disallow)
+
+World:
+  Enabled: false
+  DelayedTicks: 2
+  DoPredictPosition: true
+  OverlapTriggers:
+    ChunkLoadUnload: false
+    BlockBreak: true
+    BlockBurn: true
+    BlockFade: true
+    BlockForm: true
+    BlockGrow: true
+    BlockPlace: true
+    BlockSpread: true
+  SyncTimeTo: null
+Upper:
+  World: null
+  Overlap:
+    Enabled: false
+    From: 0
+    To: 255
+    Layers: 0
+  Teleport:
+    Enabled: false
+    From: 255
+    To: 1
+    PreserveEntityVelocity: true
+    PreserveEntityFallDistance: true
+    EntityFilter:
+        #Normal entities
+        Item: false
+        XPOrb: false
+        Painting: true
+        Arrow: false
+        Snowball: false
+        Fireball: false
+        SmallFireball: false
+        ThrownEnderpearl: false
+        EyeOfEnderSignal: false
+        ThrownEXpBottle: false
+        PrimedTnt: false
+        FallingSand: false
+        Minecart: false
+        Boat: false
+        #NPCs - Aggressive
+        Creeper: false
+        Skeleton: false
+        Spider: false
+        Giant: false
+        Zombie: false
+        Slime: false
+        Ghast: false
+        PigZombie: false
+        Enderman: false
+        CaveSpider: false
+        Silverfish: false
+        Blaze: false
+        LavaSlime: false
+        EnderDragon: true
+        #NPCs - Passive
+        Pig: false
+        Sheep: false
+        Cow: false
+        Chicken: false
+        Squid: false
+        Wolf: false
+        MushroomCow: false
+        SnowMan: false
+        Ozelot: false
+        VillagerGolem: false
+        Villager: false
+Lower:
+  World: null
+  Overlap:
+    Enabled: false
+    From: 255
+    To: 0
+    Layers: 0
+  Teleport:
+    Enabled: false
+    From: 0
+    To: 254
+    PreserveEntityVelocity: true
+    PreserveEntityFallDistance: true
+    PreventFallDamage: true
+    EntityFilter:
+        #Normal entities
+        Item: false
+        XPOrb: false
+        Painting: true
+        Arrow: false
+        Snowball: false
+        Fireball: false
+        SmallFireball: false
+        ThrownEnderpearl: false
+        EyeOfEnderSignal: false
+        ThrownEXpBottle: false
+        PrimedTnt: false
+        FallingSand: false
+        Minecart: false
+        Boat: false
+        #NPCs - Aggressive
+        Creeper: false
+        Skeleton: false
+        Spider: false
+        Giant: false
+        Zombie: false
+        Slime: false
+        Ghast: false
+        PigZombie: false
+        Enderman: false
+        CaveSpider: false
+        Silverfish: false
+        Blaze: false
+        LavaSlime: false
+        EnderDragon: true
+        #NPCs - Passive
+        Pig: false
+        Sheep: false
+        Cow: false
+        Chicken: false
+        Squid: false
+        Wolf: false
+        MushroomCow: false
+        SnowMan: false
+        Ozelot: false
+        VillagerGolem: false
+        Villager: false

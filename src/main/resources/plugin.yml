@@ -1,14 +1,20 @@
 ## Inception plugin.yml file
 ## no-modify {
 name: Inception
-version: 0.0.1
+version: 0.1.0-hf1
 author: Xaymar
 website: http://alteredgaming.de/
 main: ag.AlteredGaming.Inception
-# Plugin needs to load on startup to catch all worlds via Events
-load: STARTUP
-## }
+prefix: "Inception"
+load: POSTWORLD
+softdepend: [ Multiverse-Core ]
 commands:
   Inception:
     description: Control Inception with this command
 permissions:
+  inception:
+    description: Allow usage of the 'inception' command.
+    default: op
+  inception.reload:
+    description: Allow usage of the 'inception reload' command.
+    default: op

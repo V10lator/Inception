@@ -21,6 +21,6 @@ public class WorldHandlerRunnable implements Runnable {
 
     @Override
     public void run() {
-        objWorldHandler.tickEntityMoved();
+        objWorldHandler.tickWorldUpdateCheck();
     }
 }
