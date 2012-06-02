@@ -455,44 +455,44 @@ public class WorldHandler {
     }
 
     public void blockPlaceEvent(BlockPlaceEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockPlace")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockPlace") && !event.isCancelled()) {
             overlapBlockPlace(event.getBlockPlaced());
 
         }
     }
 
     public void blockBreakEvent(BlockBreakEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockBreak")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockBreak") && !event.isCancelled()) {
             overlapBlockBreak(event.getBlock());
         }
     }
 
     public void blockBurnEvent(BlockBurnEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockBurn")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockBurn") && !event.isCancelled()) {
             overlapBlockBreak(event.getBlock());
         }
     }
 
     public void blockFadeEvent(BlockFadeEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockFade")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockFade") && !event.isCancelled()) {
             overlapBlockBreak(event.getBlock());
         }
     }
 
     public void blockFormEvent(BlockFormEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockForm")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockForm") && !event.isCancelled()) {
             overlapBlockPlace(event.getBlock());
         }
     }
 
     public void blockGrowEvent(BlockGrowEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockGrow")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockGrow") && !event.isCancelled()) {
             overlapBlockPlace(event.getBlock());
         }
     }
 
     public void blockSpreadEvent(BlockSpreadEvent event) {
-        if (bolIsEnabled && ohmOverlapTriggers.get("BlockSpread")) {
+        if (bolIsEnabled && ohmOverlapTriggers.get("BlockSpread") && !event.isCancelled()) {
             overlapBlockPlace(event.getBlock());
         }
     }

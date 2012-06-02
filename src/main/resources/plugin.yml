@@ -1,7 +1,7 @@
 ## Inception plugin.yml file
 ## no-modify {
 name: Inception
-version: 0.1.0
+version: 0.1.0-hf1
 author: Xaymar
 website: http://alteredgaming.de/
 main: ag.AlteredGaming.Inception
