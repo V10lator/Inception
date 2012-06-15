@@ -105,60 +105,57 @@ public class util {
         }
     }
 
-    public static boolean entityTeleportEx(Entity ent, Location to)
-    {
-        final net.minecraft.server.Entity entity = ((CraftEntity)ent).getHandle();
-  	    BukkitScheduler bs = Bukkit.getScheduler();
-  	    Inception plugin = (Inception)Bukkit.getPluginManager().getPlugin("Inception"); //TODO: Improve
+    public static boolean entityTeleportEx(Entity ent, Location to) {
+        final net.minecraft.server.Entity entity = ((CraftEntity) ent).getHandle();
+        BukkitScheduler bs = Bukkit.getScheduler();
+        Inception plugin = (Inception) Bukkit.getPluginManager().getPlugin("Inception"); //TODO: Improve
 
-  	    World w = to.getWorld();
-  	    final Chunk c = w.getChunkAt(to);
-  	    if(!c.isLoaded())
-  	    {
-  	        c.load();
-  	        bs.scheduleSyncDelayedTask(plugin, new Runnable()
-  	        {
-  	            public void run()
-  	            {
-  	                c.unload(true, true);
-  	            }
-  	        }, 1);
-  	    }
+        World w = to.getWorld();
+        final Chunk c = w.getChunkAt(to);
+        if (!c.isLoaded()) {
+            c.load();
+            bs.scheduleSyncDelayedTask(plugin, new Runnable() {
 
-  	    //transfer entity cross-worlds
-  	    if(entity.passenger != null)
-  	    {
-  	        //set out of vehicle?
-  	        final net.minecraft.server.Entity passenger = entity.passenger;
-  	        entity.passenger = null;
-  	        passenger.vehicle = null;
-  	        if(entityTeleportEx(passenger.getBukkitEntity(), to))
-  	            bs.scheduleSyncDelayedTask(plugin, new Runnable()
-  	            {
-  	                public void run()
-  	                {
-  	                    passenger.setPassengerOf(entity);
-  	                }
-  	            }
-  	            , 0L);
-  	        else
-  	        {
-  	            entity.passenger = passenger;
-  	            passenger.vehicle = entity;
-  	            return false;
-  	        }
-  	    }
-  	    //teleport this entity
-  	    if(to.getWorld().equals(ent.getWorld()))
-  	        return ent.teleport(to);
-  	    ((WorldServer)entity.world).tracker.untrackEntity(entity);
-  	    entity.world.removeEntity(entity);
-  	    entity.dead = false;
-  	    WorldServer newworld = ((CraftWorld)w).getHandle();
-  	    entity.world = newworld;
-  	    entity.setLocation(to.getX(), to.getY(), to.getZ(), to.getYaw(), to.getPitch());
-  	    entity.world.addEntity(entity);
-  	    newworld.tracker.track(entity);
-  	    return true;
+                @Override
+                public void run() {
+                    c.unload(true, true);
+                }
+            }, 1);
+        }
+
+        //transfer entity cross-worlds
+        if (entity.passenger != null) {
+            //set out of vehicle?
+            final net.minecraft.server.Entity passenger = entity.passenger;
+            entity.passenger = null;
+            passenger.vehicle = null;
+            if (entityTeleportEx(passenger.getBukkitEntity(), to)) {
+                bs.scheduleSyncDelayedTask(plugin, new Runnable() {
+
+                    @Override
+                    public void run() {
+                        passenger.setPassengerOf(entity);
+                    }
+                }, 0);
+            } else {
+                entity.passenger = passenger;
+                passenger.vehicle = entity;
+                return false;
+            }
+        }
+        
+        // Teleport this Entity
+        if (to.getWorld().equals(ent.getWorld())) {
+            return ent.teleport(to);
+        }
+        ((WorldServer) entity.world).tracker.untrackEntity(entity);
+        entity.world.removeEntity(entity);
+        entity.dead = false;
+        WorldServer newworld = ((CraftWorld) w).getHandle();
+        entity.world = newworld;
+        entity.setLocation(to.getX(), to.getY(), to.getZ(), to.getYaw(), to.getPitch());
+        entity.world.addEntity(entity);
+        newworld.tracker.track(entity);
+        return true;
     }
 }
