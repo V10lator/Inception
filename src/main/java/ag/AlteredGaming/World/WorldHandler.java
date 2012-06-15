@@ -95,7 +95,7 @@ public class WorldHandler {
     public void saveDefaultConfig() {
         if (!objWorldConfigFile.exists()) {
             objPlugin.getLogger().finest("'" + objWorldConfigFile.getAbsoluteFile() + "' does not exist, unpacking...");
-            objPlugin.getEzfPluginFile().unzipPathAs("world-config.yml", objWorldConfigFile);
+            objPlugin.getPluginZipFile().unzipPathAs("world-config.yml", objWorldConfigFile);
         }
     }
 
