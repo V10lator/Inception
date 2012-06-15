@@ -2,7 +2,6 @@ package ag.AlteredGaming.World;
 
 import ag.AlteredGaming.Other.Triggers;
 import ag.AlteredGaming.Inception;
-import ag.AlteredGaming.Other.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -247,7 +246,7 @@ public class WorldHandler {
                         _UpperWorldExit.setPitch(ent.getLocation().getPitch());
                         _UpperWorldExit.setYaw(ent.getLocation().getYaw());
 
-                        if (util.entityTeleportEx(ent, _UpperWorldExit)) {
+                        if (objPlugin.getAPI().teleport(ent, _UpperWorldExit)) {
                             if (!bUpperTeleportPreserveEntityVelocity) {
                                 ent.setVelocity(new Vector(0, 0, 0));
                             }
@@ -269,7 +268,7 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                         _LowerWorldExit.setYaw(ent.getLocation().getYaw());
-                        if (util.entityTeleportEx(ent, _LowerWorldExit)) {
+                        if (objPlugin.getAPI().teleport(ent, _LowerWorldExit)) {
                             if (!bLowerTeleportPreserveEntityVelocity) {
                                 ent.setVelocity(new Vector(0, 0, 0));
                             }

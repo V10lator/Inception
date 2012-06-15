@@ -18,41 +18,11 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Explosive;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.IronGolem;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Ocelot;
-import org.bukkit.entity.Painting;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.StorageMinecart;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wolf;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.util.Vector;
 
 import ag.AlteredGaming.Inception;
-import ag.AlteredGaming.Events.EntityWorldToWorldTpEvent;
-import ag.AlteredGaming.Events.InceptionEvent;
-import ag.AlteredGaming.Events.ItemWorldToWorldTpEvent;
-import ag.AlteredGaming.Events.VehicleWorldToWorldTpEvent;
 
 /**
  *
@@ -140,25 +110,7 @@ public class util {
 
     public static boolean entityTeleportEx(Entity ent, Location to)
     {
-        if(ent instanceof Player)
-  	        return ent.teleport(to);
-        
         final net.minecraft.server.Entity entity = ((CraftEntity)ent).getHandle();
-        InceptionEvent event;
-        
-        //Create the event
-  	    if(ent instanceof LivingEntity && entity.passenger != null)
-  	        event = new VehicleWorldToWorldTpEvent((LivingEntity)ent, entity.passenger.getBukkitEntity(), to);
-  	    else if(ent instanceof Item)
-  	        event = new ItemWorldToWorldTpEvent((Item)ent, to);
-  	    else
-  	        event = new EntityWorldToWorldTpEvent(ent, to);
-  	    //Call and parse it
-  	    Bukkit.getPluginManager().callEvent(event);
-  	    if(event.isCancelled())
-  	        return false;
-  	    to = event.getTo();
-
   	    BukkitScheduler bs = Bukkit.getScheduler();
   	    Inception plugin = (Inception)Bukkit.getPluginManager().getPlugin("Inception"); //TODO: Improve
 
@@ -200,7 +152,7 @@ public class util {
   	        }
   	    }
   	    //teleport this entity
-  	    if(to.getWorld().equals(event.getFrom().getWorld()))
+  	    if(to.getWorld().equals(ent.getWorld()))
   	        return ent.teleport(to);
   	    ((WorldServer)entity.world).tracker.untrackEntity(entity);
   	    entity.world.removeEntity(entity);
@@ -209,7 +161,7 @@ public class util {
   	    entity.world = newworld;
   	    entity.setLocation(to.getX(), to.getY(), to.getZ(), to.getYaw(), to.getPitch());
   	    entity.world.addEntity(entity);
-  	    ((WorldServer)entity.world).tracker.track(entity);
+  	    newworld.tracker.track(entity);
   	    return true;
     }
 }
