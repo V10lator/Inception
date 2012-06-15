@@ -1,23 +1,23 @@
 package ag.AlteredGaming.Events;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Item;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
 
-public class ItemWorldToWorldTpEvent extends InceptionEvent
+public class EntityWorldToWorldTeleportEvent extends InceptionEvent
 {
   private static final HandlerList handlers = new HandlerList();
-  private final Item item;
+  private final Entity entity;
   
-  public ItemWorldToWorldTpEvent(Item item, Location to)
+  public EntityWorldToWorldTeleportEvent(Entity entity, Location to)
   {
-	super(item.getLocation(), to);
-	this.item = item;
+	super(entity.getLocation(), to);
+	this.entity = entity;
   }
   
-  public Item getItem()
+  public Entity getEntity()
   {
-	return item;
+	return entity;
   }
   
   public HandlerList getHandlers()

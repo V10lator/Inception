@@ -48,18 +48,18 @@ public class Inception
      * Inception Configuration Variables
      */
     private YamlConfiguration objConfiguration = new YamlConfiguration();
-    // Category General
+    // Category: General
     private boolean bGeneralAPIEnabled;
-    // Category Default>World
+    // Category: Default > World
     private boolean bDefaultWorldIsEnabled;
     private boolean bDefaultWorldDoPredictPosition;
     private int iDefaultWorldDelayedTicks;
     private EnumMap<Triggers, Boolean> mapDefaultWorldOverlapTriggers;
     private String strDefaultWorldSyncTimeTo;
-    // Category Default>Upper/Lower
+    // Category: Default > Upper/Lower
     private String strDefaultUpperWorld;
     private String strDefaultLowerWorld;
-    // Category Default>Upper/Lower>Overlap
+    // Category: Default > Upper/Lower > Overlap
     private boolean bDefaultUpperOverlapEnabled;
     private boolean bDefaultLowerOverlapEnabled;
     private int iDefaultUpperOverlapFrom;
@@ -68,7 +68,7 @@ public class Inception
     private int iDefaultLowerOverlapTo;
     private int iDefaultUpperOverlapLayers;
     private int iDefaultLowerOverlapLayers;
-    // Category Default>Upper/Lower>Teleport
+    // Category: Default > Upper/Lower > Teleport
     private boolean bDefaultUpperTeleportEnabled;
     private boolean bDefaultLowerTeleportEnabled;
     private int iDefaultUpperTeleportFrom;
@@ -96,10 +96,10 @@ public class Inception
          * Plugin Files & Folders
          */
         strPluginDirectory = this.getDataFolder().getAbsolutePath();
-        objPluginDirectory = new File(strPluginDirectory);
         strWorldConfigDirectory = strPluginDirectory + "/per-world/";
-        objWorldConfigDirectory = new File(strWorldConfigDirectory);
         strPluginConfig = strPluginDirectory + "/config.yml";
+        objPluginDirectory = new File(strPluginDirectory);
+        objWorldConfigDirectory = new File(strWorldConfigDirectory);
         objPluginConfig = new File(strPluginConfig);
         /*
          * Open the Plugin file as an EasyZipFile
@@ -243,7 +243,7 @@ public class Inception
             }
             mapDefaultWorldOverlapTriggers = new EnumMap<Triggers, Boolean>(Triggers.class);
             for (Triggers trigger : Triggers.values()) {
-                mapDefaultWorldOverlapTriggers.put(trigger, objConfiguration.getBoolean("Default.World.OverlapTriggers."+ trigger.getName(), false));
+                mapDefaultWorldOverlapTriggers.put(trigger, objConfiguration.getBoolean("Default.World.OverlapTriggers." + trigger.getName(), false));
             }
 
             strDefaultUpperWorld = objConfiguration.getString("Default.Upper.World", "");
@@ -410,7 +410,7 @@ public class Inception
     public File getWorldConfigDirectoryFile() {
         return objWorldConfigDirectory;
     }
-    
+
     //TODO: Refactor method names to fit a human readable style.
     public WorldListener getWorldListener() {
         return objWorldListener;
