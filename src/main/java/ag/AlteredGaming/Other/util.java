@@ -1,5 +1,6 @@
 package ag.AlteredGaming.Other;
 
+import ag.AlteredGaming.Inception;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,9 +8,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.bind.TypeConstraintException;
-
 import net.minecraft.server.WorldServer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -21,8 +20,6 @@ import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
-
-import ag.AlteredGaming.Inception;
 
 /**
  *
@@ -125,7 +122,7 @@ public class util {
   	            {
   	                c.unload(true, true);
   	            }
-  	        }, 1L);
+  	        }, 1);
   	    }
 
   	    //transfer entity cross-worlds
