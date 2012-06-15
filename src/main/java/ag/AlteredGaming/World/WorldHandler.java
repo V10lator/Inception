@@ -246,13 +246,14 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _UpperWorldExit.setPitch(ent.getLocation().getPitch());
                         _UpperWorldExit.setYaw(ent.getLocation().getYaw());
-                        Entity tent = util.entityTeleportEx(ent, _UpperWorldExit);
 
-                        if (!bUpperTeleportPreserveEntityVelocity) {
-                            tent.setVelocity(new Vector(0, 0, 0));
-                        }
-                        if (!bUpperTeleportPreserveEntityFallDistance) {
-                            tent.setFallDistance(0);
+                        if (util.entityTeleportEx(ent, _UpperWorldExit)) {
+                            if (!bUpperTeleportPreserveEntityVelocity) {
+                                ent.setVelocity(new Vector(0, 0, 0));
+                            }
+                            if (!bUpperTeleportPreserveEntityFallDistance) {
+                                ent.setFallDistance(0);
+                            }
                         }
                     }
                 }
@@ -268,16 +269,16 @@ public class WorldHandler {
                                                                 ent.getLocation().getZ());
                         _LowerWorldExit.setPitch(ent.getLocation().getPitch());
                         _LowerWorldExit.setYaw(ent.getLocation().getYaw());
-                        Entity tent = util.entityTeleportEx(ent, _LowerWorldExit);
-
-                        if (!bLowerTeleportPreserveEntityVelocity) {
-                            tent.setVelocity(new Vector(0, 0, 0));
-                        }
-                        if (!bLowerTeleportPreserveEntityFallDistance) {
-                            tent.setFallDistance(0);
-                        }
-                        if (bLowerTeleportPreventFallDamage) {
-                            tent.setMetadata("takeFallDamage", new FixedMetadataValue(objPlugin, true));
+                        if (util.entityTeleportEx(ent, _LowerWorldExit)) {
+                            if (!bLowerTeleportPreserveEntityVelocity) {
+                                ent.setVelocity(new Vector(0, 0, 0));
+                            }
+                            if (!bLowerTeleportPreserveEntityFallDistance) {
+                                ent.setFallDistance(0);
+                            }
+                            if (bLowerTeleportPreventFallDamage) {
+                                ent.setMetadata("takeFallDamage", new FixedMetadataValue(objPlugin, true));
+                            }
                         }
                     }
                 }
