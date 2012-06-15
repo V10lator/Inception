@@ -1,4 +1,4 @@
-package ag.AlteredGaming;
+package ag.AlteredGaming.Other;
 
 import java.io.IOException;
 import java.io.InputStream;

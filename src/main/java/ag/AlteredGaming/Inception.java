@@ -1,5 +1,7 @@
 package ag.AlteredGaming;
 
+import ag.AlteredGaming.Other.EasyZipFile;
+import ag.AlteredGaming.Other.util;
 import ag.AlteredGaming.API.InceptionAPI;
 import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
@@ -26,13 +28,11 @@ public class Inception
     @SuppressWarnings("NonConstantLogger")
     private Logger objLogger;
     private String strPrefix;
-    
     /*
      * Internal Inception Values
      */
     private WorldListener objWorldListener;
     private HashMap<World, WorldHandler> mapWorldHandlers = new HashMap<World, WorldHandler>();
-    
     /*
      * Inception Plugin Files
      */
@@ -43,11 +43,10 @@ public class Inception
     private File objPluginDirectory;
     private File objWorldConfigDirectory;
     private File objPluginConfig;
-    
     /*
      * Inception Configuration Variables
      */
-    private YamlConfiguration objConfiguration  = new YamlConfiguration();
+    private YamlConfiguration objConfiguration = new YamlConfiguration();
     // Category General
     private boolean bGeneralAPIEnabled;
     // Category Default>World
@@ -82,13 +81,11 @@ public class Inception
     private boolean bDefaultLowerTeleportPreventFallDamage;
     private EnumMap<EntityType, Boolean> mapDefaultUpperTeleportEntityFilter;
     private EnumMap<EntityType, Boolean> mapDefaultLowerTeleportEntityFilter;
-    
-    
     /*
      * API Handlers
      */
     private InceptionAPI objAPI;
-    
+
     @Override
     public void onEnable() {
         objLogger = super.getLogger();
@@ -97,17 +94,20 @@ public class Inception
         /*
          * Plugin Files & Folders
          */
-        try { //Try to create an easily useable Zip File
-            objPluginFile = new EasyZipFile(this.getFile());
-        } catch (Exception ex) {
-            objLogger.log(Level.SEVERE, null, ex);
-        }
         strPluginDirectory = this.getDataFolder().getAbsolutePath();
         objPluginDirectory = new File(strPluginDirectory);
         strWorldConfigDirectory = strPluginDirectory + "/per-world/";
         objWorldConfigDirectory = new File(strWorldConfigDirectory);
         strPluginConfig = strPluginDirectory + "/config.yml";
         objPluginConfig = new File(strPluginConfig);
+        /*
+         * Open the Plugin file as an EasyZipFile
+         */
+        try {
+            objPluginFile = new EasyZipFile(this.getFile());
+        } catch (Exception ex) {
+            objLogger.log(Level.SEVERE, null, ex);
+        }
 
         /*
          * Create base folder structure...
@@ -131,7 +131,7 @@ public class Inception
         // Create the default configuration file if needed...
         saveDefaultConfig();
 
-        
+
         // Load global settings...
         loadConfig();
 
@@ -187,7 +187,7 @@ public class Inception
         mapDefaultWorldOverlapTriggers.clear();
         mapDefaultUpperTeleportEntityFilter.clear();
         mapDefaultLowerTeleportEntityFilter.clear();
-        
+
         /*
          * Null reference Values for the GC
          */
@@ -218,15 +218,14 @@ public class Inception
     @Override
     public void saveDefaultConfig() {
         if (!objPluginConfig.exists()) {
-            objLogger.finest("'" + strPluginConfig + "' does not exist, unpacking...");
+            objLogger.info("'" + strPluginConfig + "' does not exist, unpacking...");
             objPluginFile.unzipPathAs("config.yml", objPluginConfig);
         }
     }
 
     public void loadConfig() {
-        if (!objPluginConfig.exists()) {
-            saveDefaultConfig();
-        }
+        saveDefaultConfig();
+
         try {
             objConfiguration.load(objPluginConfig);
 
@@ -300,7 +299,7 @@ public class Inception
     /*
      * End Region: Configuration
      */
-    
+
     /*
      * Region: Command Handler
      */
@@ -392,9 +391,7 @@ public class Inception
     /*
      * Internal Value Properties
      */
-    
     //TODO: Refactor method names to fit a human readable style.
-    
     public EasyZipFile getEzfPluginFile() {
         return objPluginFile;
     }
@@ -434,9 +431,7 @@ public class Inception
     /*
      * Properties for Inception Values
      */
-    
     //TODO: Refactor method names to fit a human readable style.
-    
     public boolean bolDefaultDoPredictPosition() {
         return bDefaultWorldDoPredictPosition;
     }

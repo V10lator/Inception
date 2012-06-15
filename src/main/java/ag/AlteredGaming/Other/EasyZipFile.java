@@ -1,5 +1,7 @@
-package ag.AlteredGaming;
+package ag.AlteredGaming.Other;
 
+import ag.AlteredGaming.Inception;
+import ag.AlteredGaming.Other.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
