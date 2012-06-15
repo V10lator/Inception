@@ -79,9 +79,14 @@ public class WorldHandler {
         this.objWorld = objWorld;
         this.objWorldConfigFile = new File(objPlugin.getWorldConfigDirectoryFile().getPath() + "/" + objWorld.getName() + ".yml");
         this.objWorldConfig = new YamlConfiguration();
-
+        
         loadConfig();
     }
+    
+    public void onDisable() {
+        this.overlapUnload();
+    }
+    
 
     public void saveDefaultConfig() {
         if (!objWorldConfigFile.exists()) {

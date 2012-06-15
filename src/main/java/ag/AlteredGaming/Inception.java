@@ -1,5 +1,6 @@
 package ag.AlteredGaming;
 
+import ag.AlteredGaming.API.InceptionAPI;
 import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipException;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,63 +25,81 @@ public class Inception
 
     @SuppressWarnings("NonConstantLogger")
     private Logger objLogger;
-    private EasyZipFile ezfPluginFile;
-    private String prefix;
-    //Plugin files(with String path)
+    private String strPrefix;
+    
+    /*
+     * Internal Inception Values
+     */
+    private WorldListener objWorldListener;
+    private HashMap<World, WorldHandler> mapWorldHandlers = new HashMap<World, WorldHandler>();
+    
+    /*
+     * Inception Plugin Files
+     */
+    private EasyZipFile objPluginFile;
     private String strPluginDirectory;
     private String strWorldConfigDirectory;
     private String strPluginConfig;
     private File objPluginDirectory;
     private File objWorldConfigDirectory;
     private File objPluginConfig;
-    //Configuration Stuff
-    private YamlConfiguration objConfiguration;
-    private boolean bolDefaultIsEnabled;
-    private boolean bolDefaultDoPredictPosition;
-    private int intDefaultDelayedTicks;
-    private HashMap<String, Boolean> ohmDefaultOverlapTriggers;
-    private String strDefaultSyncTimeTo;
+    
+    /*
+     * Inception Configuration Variables
+     */
+    private YamlConfiguration objConfiguration  = new YamlConfiguration();
+    // Category General
+    private boolean bGeneralAPIEnabled;
+    // Category Default>World
+    private boolean bDefaultWorldIsEnabled;
+    private boolean bDefaultWorldDoPredictPosition;
+    private int iDefaultWorldDelayedTicks;
+    private HashMap<String, Boolean> mapDefaultWorldOverlapTriggers;
+    private String strDefaultWorldSyncTimeTo;
+    // Category Default>Upper/Lower
     private String strDefaultUpperWorld;
-    private boolean bolDefaultUpperOverlapEnabled;
-    private int intDefaultUpperOverlapFrom;
-    private int intDefaultUpperOverlapTo;
-    private int intDefaultUpperOverlapLayers;
-    private boolean bolDefaultUpperTeleportEnabled;
-    private int intDefaultUpperTeleportFrom;
-    private int intDefaultUpperTeleportTo;
-    private boolean bolDefaultUpperTeleportPreserveEntityVelocity;
-    private boolean bolDefaultUpperTeleportPreserveEntityFallDistance;
-    private EnumMap<EntityType, Boolean> oemDefaultUpperTeleportEntityFilter;
     private String strDefaultLowerWorld;
-    private boolean bolDefaultLowerOverlapEnabled;
-    private int intDefaultLowerOverlapFrom;
-    private int intDefaultLowerOverlapTo;
-    private int intDefaultLowerOverlapLayers;
-    private boolean bolDefaultLowerTeleportEnabled;
-    private int intDefaultLowerTeleportFrom;
-    private int intDefaultLowerTeleportTo;
-    private boolean bolDefaultLowerTeleportPreserveEntityVelocity;
-    private boolean bolDefaultLowerTeleportPreserveEntityFallDistance;
-    private boolean bolDefaultLowerTeleportPreventFallDamage;
-    private EnumMap<EntityType, Boolean> oemDefaultLowerTeleportEntityFilter;
-    //WorldListener to catch world events
-    private WorldListener objWorldListener;
-    //Holds all WorldHandlers that exist
-    private HashMap<World, WorldHandler> ohmWorldHandlers;
-
+    // Category Default>Upper/Lower>Overlap
+    private boolean bDefaultUpperOverlapEnabled;
+    private boolean bDefaultLowerOverlapEnabled;
+    private int iDefaultUpperOverlapFrom;
+    private int iDefaultLowerOverlapFrom;
+    private int iDefaultUpperOverlapTo;
+    private int iDefaultLowerOverlapTo;
+    private int iDefaultUpperOverlapLayers;
+    private int iDefaultLowerOverlapLayers;
+    // Category Default>Upper/Lower>Teleport
+    private boolean bDefaultUpperTeleportEnabled;
+    private boolean bDefaultLowerTeleportEnabled;
+    private int iDefaultUpperTeleportFrom;
+    private int iDefaultLowerTeleportFrom;
+    private int iDefaultUpperTeleportTo;
+    private int iDefaultLowerTeleportTo;
+    private boolean bDefaultUpperTeleportPreserveEntityVelocity;
+    private boolean bDefaultLowerTeleportPreserveEntityVelocity;
+    private boolean bDefaultUpperTeleportPreserveEntityFallDistance;
+    private boolean bDefaultLowerTeleportPreserveEntityFallDistance;
+    private boolean bDefaultLowerTeleportPreventFallDamage;
+    private EnumMap<EntityType, Boolean> mapDefaultUpperTeleportEntityFilter;
+    private EnumMap<EntityType, Boolean> mapDefaultLowerTeleportEntityFilter;
+    
+    
+    /*
+     * API Handlers
+     */
+    private InceptionAPI objAPI;
+    
     @Override
     public void onEnable() {
         objLogger = super.getLogger();
-        prefix = "[" + this.getDescription().getPrefix() + "] ";
+        strPrefix = "[" + this.getDescription().getPrefix() + "] ";
 
-        //Plugin files and folders
-        try {
-            ezfPluginFile = new EasyZipFile(this.getFile());
-        } catch (ZipException ex) {
-            objLogger.log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            objLogger.log(Level.SEVERE, null, ex);
-        } catch (NullPointerException ex) {
+        /*
+         * Plugin Files & Folders
+         */
+        try { //Try to create an easily useable Zip File
+            objPluginFile = new EasyZipFile(this.getFile());
+        } catch (Exception ex) {
             objLogger.log(Level.SEVERE, null, ex);
         }
         strPluginDirectory = this.getDataFolder().getAbsolutePath();
@@ -92,84 +110,116 @@ public class Inception
         objPluginConfig = new File(strPluginConfig);
 
         /*
-         * Create base folder structure
+         * Create base folder structure...
          */
         if (!objPluginDirectory.exists()) {
-            objLogger.finest("'" + strPluginDirectory + "' does not exist, creating...");
+            objLogger.info("'" + strPluginDirectory + "' does not exist, creating...");
             if (objPluginDirectory.mkdir()) {
-                objLogger.finest("Created '" + strPluginDirectory + "'.");
+                objLogger.info("Created '" + strPluginDirectory + "'.");
             } else {
                 objLogger.warning("Unable to create '" + strPluginDirectory + "'.");
             }
         }
         if (!objWorldConfigDirectory.exists()) {
-            objLogger.finest("'" + strWorldConfigDirectory + "' does not exist, creating...");
+            objLogger.info("'" + strWorldConfigDirectory + "' does not exist, creating...");
             if (objWorldConfigDirectory.mkdir()) {
                 objLogger.info("Created '" + strWorldConfigDirectory + "'.");
             } else {
                 objLogger.warning("Unable to create '" + strWorldConfigDirectory + "'.");
             }
         }
-        //Check if we need to create the default configuration file
+        // Create the default configuration file if needed...
         saveDefaultConfig();
 
-        //Configuration Stuff
-        objConfiguration = new YamlConfiguration();
+        
+        // Load global settings...
         loadConfig();
 
-        //Hashmap for WorldHandler storage
-        ohmWorldHandlers = new HashMap<World, WorldHandler>();
-
-        //Add all loaded Worlds as WorldHandlers
+        // Register all WorldHandlers...
         for (World world : getServer().getWorlds()) {
-            if (!ohmWorldHandlers.containsKey(world)) {
-                ohmWorldHandlers.put(world, new WorldHandler(this, world));
-            }
+            mapWorldHandlers.put(world, new WorldHandler(this, world));
         }
 
-        //Event Listeners
-        objLogger.fine("Registering World Listener...");
+        // Register Event Listener...
+        objLogger.info("Registering World Listener...");
         objWorldListener = new WorldListener(this);
         getServer().getPluginManager().registerEvents(objWorldListener, this);
 
+        // Register API...
+        if (bGeneralAPIEnabled) {
+            objAPI = new InceptionAPI(this);
+            objLogger.info("Registering API...");
+        }
+
+        // Done.
         objLogger.info("Enabled.");
     }
 
     @Override
     public void onDisable() {
-        //Cancel all tasks
+        /*
+         * Kill critical Inception tasks, otherwise we'll crash in the
+         * middle of disabling.
+         */
         getServer().getScheduler().cancelTasks(this);
 
-        //Null all variable references to allow the GC to delete these
-        for (World wld : ohmWorldHandlers.keySet()) {
-            ohmWorldHandlers.get(wld).overlapUnload();
+        /*
+         * Disable and delete all WorldHandlers.
+         */
+        for (World wld : mapWorldHandlers.keySet()) {
+            mapWorldHandlers.get(wld).onDisable();
+            mapWorldHandlers.put(wld, null);
         }
-        ohmWorldHandlers.clear();
-        ohmWorldHandlers = null;
+
+        /*
+         * Close Plugin File
+         */
+        try {
+            objPluginFile.close();
+        } catch (Exception ex) {
+            objLogger.log(Level.SEVERE, null, ex);
+        }
+
+        /*
+         * Clear all created maps
+         */
+        mapWorldHandlers.clear();
+        mapDefaultWorldOverlapTriggers.clear();
+        mapDefaultUpperTeleportEntityFilter.clear();
+        mapDefaultLowerTeleportEntityFilter.clear();
+        
+        /*
+         * Null reference Values for the GC
+         */
+        mapDefaultUpperTeleportEntityFilter = null;
+        mapDefaultLowerTeleportEntityFilter = null;
+        mapDefaultWorldOverlapTriggers = null;
+        mapWorldHandlers = null;
         objWorldListener = null;
         objConfiguration = null;
         objPluginConfig = null;
-        strPluginConfig = null;
         objWorldConfigDirectory = null;
-        strWorldConfigDirectory = null;
         objPluginDirectory = null;
+        strDefaultWorldSyncTimeTo = null;
+        strDefaultUpperWorld = null;
+        strDefaultLowerWorld = null;
+        strPluginConfig = null;
+        strWorldConfigDirectory = null;
         strPluginDirectory = null;
-        try {
-            ezfPluginFile.close();
-        } catch (IOException ex) {
-            objLogger.log(Level.SEVERE, null, ex);
-        }
-        ezfPluginFile = null;
+        objPluginFile = null;
 
         objLogger.info("Disabled.");
         objLogger = null;
     }
 
+    /*
+     * Region: Configuration
+     */
     @Override
     public void saveDefaultConfig() {
         if (!objPluginConfig.exists()) {
             objLogger.finest("'" + strPluginConfig + "' does not exist, unpacking...");
-            ezfPluginFile.unzipPathAs("config.yml", objPluginConfig);
+            objPluginFile.unzipPathAs("config.yml", objPluginConfig);
         }
     }
 
@@ -180,53 +230,55 @@ public class Inception
         try {
             objConfiguration.load(objPluginConfig);
 
-            bolDefaultIsEnabled = objConfiguration.getBoolean("Default.World.Enabled", true);
-            bolDefaultDoPredictPosition = objConfiguration.getBoolean("Default.World.DoPredictPosition", true);
-            intDefaultDelayedTicks = objConfiguration.getInt("Default.World.DelayedTicks", 1);
-            strDefaultSyncTimeTo = objConfiguration.getString("Default.World.SyncTimeTo", "");
+            bGeneralAPIEnabled = objConfiguration.getBoolean("General.APIEnabled", true);
 
-            if (ohmDefaultOverlapTriggers != null) {
-                ohmDefaultOverlapTriggers.clear();
-                ohmDefaultOverlapTriggers = null;
+            bDefaultWorldIsEnabled = objConfiguration.getBoolean("Default.World.Enabled", true);
+            bDefaultWorldDoPredictPosition = objConfiguration.getBoolean("Default.World.DoPredictPosition", true);
+            iDefaultWorldDelayedTicks = objConfiguration.getInt("Default.World.DelayedTicks", 1);
+            strDefaultWorldSyncTimeTo = objConfiguration.getString("Default.World.SyncTimeTo", "");
+
+            if (mapDefaultWorldOverlapTriggers != null) {
+                mapDefaultWorldOverlapTriggers.clear();
+                mapDefaultWorldOverlapTriggers = null;
             }
-            ohmDefaultOverlapTriggers = new HashMap<String, Boolean>();
-            ohmDefaultOverlapTriggers.put("ChunkLoadUnload", objConfiguration.getBoolean("Default.World.OverlapTriggers.ChunkLoadUnload", true));
-            ohmDefaultOverlapTriggers.put("BlockPlace", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockPlace", true));
-            ohmDefaultOverlapTriggers.put("BlockBreak", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockBreak", true));
-            ohmDefaultOverlapTriggers.put("BlockBurn", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockBurn", true));
-            ohmDefaultOverlapTriggers.put("BlockFade", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockFade", true));
-            ohmDefaultOverlapTriggers.put("BlockForm", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockForm", true));
-            ohmDefaultOverlapTriggers.put("BlockGrow", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockGrow", true));
-            ohmDefaultOverlapTriggers.put("BlockSpread", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockSpread", true));
+            mapDefaultWorldOverlapTriggers = new HashMap<String, Boolean>();
+            mapDefaultWorldOverlapTriggers.put("ChunkLoadUnload", objConfiguration.getBoolean("Default.World.OverlapTriggers.ChunkLoadUnload", true));
+            mapDefaultWorldOverlapTriggers.put("BlockPlace", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockPlace", true));
+            mapDefaultWorldOverlapTriggers.put("BlockBreak", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockBreak", true));
+            mapDefaultWorldOverlapTriggers.put("BlockBurn", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockBurn", true));
+            mapDefaultWorldOverlapTriggers.put("BlockFade", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockFade", true));
+            mapDefaultWorldOverlapTriggers.put("BlockForm", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockForm", true));
+            mapDefaultWorldOverlapTriggers.put("BlockGrow", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockGrow", true));
+            mapDefaultWorldOverlapTriggers.put("BlockSpread", objConfiguration.getBoolean("Default.World.OverlapTriggers.BlockSpread", true));
 
             strDefaultUpperWorld = objConfiguration.getString("Default.Upper.World", "");
-            bolDefaultUpperOverlapEnabled = objConfiguration.getBoolean("Default.Upper.Overlap.Enabled", false);
-            intDefaultUpperOverlapFrom = objConfiguration.getInt("Default.Upper.Overlap.From", 0);
-            intDefaultUpperOverlapTo = objConfiguration.getInt("Default.Upper.Overlap.To", 255);
-            intDefaultUpperOverlapLayers = objConfiguration.getInt("Default.Upper.Overlap.Layers", 0);
-            bolDefaultUpperTeleportEnabled = objConfiguration.getBoolean("Default.Upper.Teleport.Enabled", false);
-            intDefaultUpperTeleportFrom = objConfiguration.getInt("Default.Upper.Teleport.From", 255);
-            intDefaultUpperTeleportTo = objConfiguration.getInt("Default.Upper.Teleport.To", 1);
-            bolDefaultUpperTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Upper.PreserveEntityVelocity", true);
-            bolDefaultUpperTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Upper.PreserveEntityFallDistance", true);
-            oemDefaultUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            bDefaultUpperOverlapEnabled = objConfiguration.getBoolean("Default.Upper.Overlap.Enabled", false);
+            iDefaultUpperOverlapFrom = objConfiguration.getInt("Default.Upper.Overlap.From", 0);
+            iDefaultUpperOverlapTo = objConfiguration.getInt("Default.Upper.Overlap.To", 255);
+            iDefaultUpperOverlapLayers = objConfiguration.getInt("Default.Upper.Overlap.Layers", 0);
+            bDefaultUpperTeleportEnabled = objConfiguration.getBoolean("Default.Upper.Teleport.Enabled", false);
+            iDefaultUpperTeleportFrom = objConfiguration.getInt("Default.Upper.Teleport.From", 255);
+            iDefaultUpperTeleportTo = objConfiguration.getInt("Default.Upper.Teleport.To", 1);
+            bDefaultUpperTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Upper.PreserveEntityVelocity", true);
+            bDefaultUpperTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Upper.PreserveEntityFallDistance", true);
+            mapDefaultUpperTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                oemDefaultUpperTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Upper.Teleport.EntityFilter." + et.getName(), false));
+                mapDefaultUpperTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Upper.Teleport.EntityFilter." + et.getName(), false));
             }
             strDefaultLowerWorld = objConfiguration.getString("Default.Lower.World", "");
-            bolDefaultLowerOverlapEnabled = objConfiguration.getBoolean("Default.Lower.Overlap.Enabled", false);
-            intDefaultLowerOverlapFrom = objConfiguration.getInt("Default.Lower.Overlap.From", 255);
-            intDefaultLowerOverlapTo = objConfiguration.getInt("Default.Lower.Overlap.To", 0);
-            intDefaultLowerOverlapLayers = objConfiguration.getInt("Default.Lower.Overlap.Layers", 0);
-            bolDefaultLowerTeleportEnabled = objConfiguration.getBoolean("Default.Lower.Teleport.Enabled", false);
-            intDefaultLowerTeleportFrom = objConfiguration.getInt("Default.Lower.Teleport.From", 0);
-            intDefaultLowerTeleportTo = objConfiguration.getInt("Default.Lower.Teleport.To", 254);
-            bolDefaultLowerTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Lower.PreserveEntityVelocity", true);
-            bolDefaultLowerTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Lower.PreserveEntityFallDistance", true);
-            bolDefaultLowerTeleportPreventFallDamage = objConfiguration.getBoolean("Default.Lower.PreventFallDamage", true);
-            oemDefaultLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
+            bDefaultLowerOverlapEnabled = objConfiguration.getBoolean("Default.Lower.Overlap.Enabled", false);
+            iDefaultLowerOverlapFrom = objConfiguration.getInt("Default.Lower.Overlap.From", 255);
+            iDefaultLowerOverlapTo = objConfiguration.getInt("Default.Lower.Overlap.To", 0);
+            iDefaultLowerOverlapLayers = objConfiguration.getInt("Default.Lower.Overlap.Layers", 0);
+            bDefaultLowerTeleportEnabled = objConfiguration.getBoolean("Default.Lower.Teleport.Enabled", false);
+            iDefaultLowerTeleportFrom = objConfiguration.getInt("Default.Lower.Teleport.From", 0);
+            iDefaultLowerTeleportTo = objConfiguration.getInt("Default.Lower.Teleport.To", 254);
+            bDefaultLowerTeleportPreserveEntityVelocity = objConfiguration.getBoolean("Default.Lower.PreserveEntityVelocity", true);
+            bDefaultLowerTeleportPreserveEntityFallDistance = objConfiguration.getBoolean("Default.Lower.PreserveEntityFallDistance", true);
+            bDefaultLowerTeleportPreventFallDamage = objConfiguration.getBoolean("Default.Lower.PreventFallDamage", true);
+            mapDefaultLowerTeleportEntityFilter = new EnumMap<EntityType, Boolean>(EntityType.class);
             for (EntityType et : EntityType.values()) {
-                oemDefaultLowerTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.Teleport.EntityFilter." + et.getName(), false));
+                mapDefaultLowerTeleportEntityFilter.put(et, objConfiguration.getBoolean("Default.Lower.Teleport.EntityFilter." + et.getName(), false));
             }
         } catch (FileNotFoundException ex) {
             objLogger.log(Level.SEVERE, null, ex);
@@ -245,7 +297,13 @@ public class Inception
             Logger.getLogger(Inception.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    /*
+     * End Region: Configuration
+     */
+    
+    /*
+     * Region: Command Handler
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         args = util.reparseArgs(args);
@@ -257,7 +315,7 @@ public class Inception
         return false;
     }
 
-    public boolean onCommand_inception(CommandSender sender, Command command, String label, String[] args) {
+    private boolean onCommand_inception(CommandSender sender, Command command, String label, String[] args) {
         String[] newArgs = (args.length > 0) ? (Arrays.copyOfRange(args, 1, args.length)) : (new String[0]);
 
         if (args.length == 0) {
@@ -289,7 +347,7 @@ public class Inception
         if (args.length == 0) {
             sendMessage(sender, "Reloading plugin configuration...");
             this.loadConfig();
-            for (WorldHandler _wh : ohmWorldHandlers.values()) {
+            for (WorldHandler _wh : mapWorldHandlers.values()) {
                 sendMessage(sender, "Reloading world configuration '" + _wh.getWorld().getName() + "'...");
                 _wh.loadConfig();
             }
@@ -300,6 +358,9 @@ public class Inception
 
         return false;
     }
+    /*
+     * End Region: Command Handler
+     */
 
     public <T> void sendMessage(final T reciever, final String msg, final Object... args) {
         sendMessage(true, reciever, msg, args);
@@ -313,7 +374,7 @@ public class Inception
                 }
             } else {
                 for (String line : String.format(msg, args).split("\n")) {
-                    util.senderFromName(reciever).sendMessage(util.colorize((prefix ? this.prefix : "") + line));
+                    util.senderFromName(reciever).sendMessage(util.colorize((prefix ? this.strPrefix : "") + line));
                 }
             }
         }
@@ -328,8 +389,14 @@ public class Inception
         }
     }
 
+    /*
+     * Internal Value Properties
+     */
+    
+    //TODO: Refactor method names to fit a human readable style.
+    
     public EasyZipFile getEzfPluginFile() {
-        return ezfPluginFile;
+        return objPluginFile;
     }
 
     public WorldListener getWorldListener() {
@@ -337,7 +404,7 @@ public class Inception
     }
 
     public HashMap<World, WorldHandler> getWorldHandlers() {
-        return ohmWorldHandlers;
+        return mapWorldHandlers;
     }
 
     public String getPluginConfigPath() {
@@ -364,97 +431,102 @@ public class Inception
         return objWorldConfigDirectory;
     }
 
-    //Default Value Getters
+    /*
+     * Properties for Inception Values
+     */
+    
+    //TODO: Refactor method names to fit a human readable style.
+    
     public boolean bolDefaultDoPredictPosition() {
-        return bolDefaultDoPredictPosition;
+        return bDefaultWorldDoPredictPosition;
     }
 
     public boolean bolDefaultIsEnabled() {
-        return bolDefaultIsEnabled;
+        return bDefaultWorldIsEnabled;
     }
 
     public boolean bolDefaultLowerOverlapEnabled() {
-        return bolDefaultLowerOverlapEnabled;
+        return bDefaultLowerOverlapEnabled;
     }
 
     public boolean bolDefaultLowerTeleportEnabled() {
-        return bolDefaultLowerTeleportEnabled;
+        return bDefaultLowerTeleportEnabled;
     }
 
     public boolean bolDefaultLowerTeleportPreserveEntityFallDistance() {
-        return bolDefaultLowerTeleportPreserveEntityFallDistance;
+        return bDefaultLowerTeleportPreserveEntityFallDistance;
     }
 
     public boolean bolDefaultLowerTeleportPreserveEntityVelocity() {
-        return bolDefaultLowerTeleportPreserveEntityVelocity;
+        return bDefaultLowerTeleportPreserveEntityVelocity;
     }
 
     public boolean bolDefaultUpperOverlapEnabled() {
-        return bolDefaultUpperOverlapEnabled;
+        return bDefaultUpperOverlapEnabled;
     }
 
     public boolean bolDefaultUpperTeleportEnabled() {
-        return bolDefaultUpperTeleportEnabled;
+        return bDefaultUpperTeleportEnabled;
     }
 
     public boolean bolDefaultUpperTeleportPreserveEntityFallDistance() {
-        return bolDefaultUpperTeleportPreserveEntityFallDistance;
+        return bDefaultUpperTeleportPreserveEntityFallDistance;
     }
 
     public boolean bolDefaultUpperTeleportPreserveEntityVelocity() {
-        return bolDefaultUpperTeleportPreserveEntityVelocity;
+        return bDefaultUpperTeleportPreserveEntityVelocity;
     }
 
     public int intDefaultDelayedTicks() {
-        return intDefaultDelayedTicks;
+        return iDefaultWorldDelayedTicks;
     }
 
     public int intDefaultLowerOverlapFrom() {
-        return intDefaultLowerOverlapFrom;
+        return iDefaultLowerOverlapFrom;
     }
 
     public int intDefaultLowerOverlapLayers() {
-        return intDefaultLowerOverlapLayers;
+        return iDefaultLowerOverlapLayers;
     }
 
     public int intDefaultLowerOverlapTo() {
-        return intDefaultLowerOverlapTo;
+        return iDefaultLowerOverlapTo;
     }
 
     public int intDefaultLowerTeleportFrom() {
-        return intDefaultLowerTeleportFrom;
+        return iDefaultLowerTeleportFrom;
     }
 
     public int intDefaultLowerTeleportTo() {
-        return intDefaultLowerTeleportTo;
+        return iDefaultLowerTeleportTo;
     }
 
     public int intDefaultUpperOverlapFrom() {
-        return intDefaultUpperOverlapFrom;
+        return iDefaultUpperOverlapFrom;
     }
 
     public int intDefaultUpperOverlapLayers() {
-        return intDefaultUpperOverlapLayers;
+        return iDefaultUpperOverlapLayers;
     }
 
     public int intDefaultUpperOverlapTo() {
-        return intDefaultUpperOverlapTo;
+        return iDefaultUpperOverlapTo;
     }
 
     public int intDefaultUpperTeleportFrom() {
-        return intDefaultUpperTeleportFrom;
+        return iDefaultUpperTeleportFrom;
     }
 
     public int intDefaultUpperTeleportTo() {
-        return intDefaultUpperTeleportTo;
+        return iDefaultUpperTeleportTo;
     }
 
     public EnumMap<EntityType, Boolean> oemDefaultLowerTeleportEntityFilter() {
-        return oemDefaultLowerTeleportEntityFilter;
+        return mapDefaultLowerTeleportEntityFilter;
     }
 
     public EnumMap<EntityType, Boolean> oemDefaultUpperTeleportEntityFilter() {
-        return oemDefaultUpperTeleportEntityFilter;
+        return mapDefaultUpperTeleportEntityFilter;
     }
 
     public String strDefaultLowerWorld() {
@@ -466,14 +538,21 @@ public class Inception
     }
 
     public HashMap<String, Boolean> ohmDefaultOverlapTriggers() {
-        return ohmDefaultOverlapTriggers;
+        return mapDefaultWorldOverlapTriggers;
     }
 
     public String strDefaultSyncTimeTo() {
-        return strDefaultSyncTimeTo;
+        return strDefaultWorldSyncTimeTo;
     }
 
     public boolean bolDefaultLowerTeleportPreventFallDamage() {
-        return bolDefaultLowerTeleportPreventFallDamage;
+        return bDefaultLowerTeleportPreventFallDamage;
+    }
+
+    /*
+     * API Handlers
+     */
+    public InceptionAPI getAPI() {
+        return objAPI;
     }
 }

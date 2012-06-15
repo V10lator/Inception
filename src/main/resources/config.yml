@@ -1,8 +1,12 @@
 #Node                              Explanation
 #-------------------------------------------------------------------------------
+#General:                          Container for general options.
+#  APIEnabled:                     Is the API for Inception enabled?
 #Default:                          Container for default per-world things.
 #                                    See the header of world-config.yml.
 
+General:
+  APIEnabled: true
 Default:
   World:
     Enabled: false

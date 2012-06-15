@@ -16,8 +16,7 @@ public class YMLFilenameFilter
 
     @Override
     public boolean accept(File dir, String name) {
-        String extension = name.substring(name.lastIndexOf(".")+1);
-        if (extension.toLowerCase().equals("yml")) {
+        if ((name.substring(name.lastIndexOf(".") + 1)).toLowerCase().equals("yml")) {
             return true;
         }
         return false;
