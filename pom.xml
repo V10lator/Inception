@@ -6,7 +6,7 @@
     <groupId>ag.AlteredGaming</groupId>
     <artifactId>Inception</artifactId>
     <name>Inception</name>
-    <version>0.1.0-Beta</version>
+    <version>0.1.1-Beta</version>
     <url>http://alteredgaming.de</url>
     <description>Inception allows you to make your CraftBukkit worlds connect with each other.</description>
     
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.2.5-R3.0</version>
+            <version>1.2.5-R4.0</version>
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
