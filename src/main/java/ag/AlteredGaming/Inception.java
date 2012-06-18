@@ -1,9 +1,9 @@
 package ag.AlteredGaming;
 
-import ag.AlteredGaming.API.InceptionAPI;
 import ag.AlteredGaming.Other.EasyZipFile;
 import ag.AlteredGaming.Other.Triggers;
 import ag.AlteredGaming.Other.util;
+import ag.AlteredGaming.API.InceptionAPI;
 import ag.AlteredGaming.World.WorldHandler;
 import ag.AlteredGaming.World.WorldListener;
 import java.io.File;
@@ -26,7 +26,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Inception
         extends JavaPlugin {
 
-    @SuppressWarnings("NonConstantLogger")
     private Logger objLogger;
     private String strPrefix;
     /*
@@ -48,18 +47,18 @@ public class Inception
      * Inception Configuration Variables
      */
     private YamlConfiguration objConfiguration = new YamlConfiguration();
-    // Category: General
+    // Category General
     private boolean bGeneralAPIEnabled;
-    // Category: Default > World
+    // Category Default>World
     private boolean bDefaultWorldIsEnabled;
     private boolean bDefaultWorldDoPredictPosition;
     private int iDefaultWorldDelayedTicks;
     private EnumMap<Triggers, Boolean> mapDefaultWorldOverlapTriggers;
     private String strDefaultWorldSyncTimeTo;
-    // Category: Default > Upper/Lower
+    // Category Default>Upper/Lower
     private String strDefaultUpperWorld;
     private String strDefaultLowerWorld;
-    // Category: Default > Upper/Lower > Overlap
+    // Category Default>Upper/Lower>Overlap
     private boolean bDefaultUpperOverlapEnabled;
     private boolean bDefaultLowerOverlapEnabled;
     private int iDefaultUpperOverlapFrom;
@@ -68,7 +67,7 @@ public class Inception
     private int iDefaultLowerOverlapTo;
     private int iDefaultUpperOverlapLayers;
     private int iDefaultLowerOverlapLayers;
-    // Category: Default > Upper/Lower > Teleport
+    // Category Default>Upper/Lower>Teleport
     private boolean bDefaultUpperTeleportEnabled;
     private boolean bDefaultLowerTeleportEnabled;
     private int iDefaultUpperTeleportFrom;
@@ -96,10 +95,10 @@ public class Inception
          * Plugin Files & Folders
          */
         strPluginDirectory = this.getDataFolder().getAbsolutePath();
-        strWorldConfigDirectory = strPluginDirectory + "/per-world/";
-        strPluginConfig = strPluginDirectory + "/config.yml";
         objPluginDirectory = new File(strPluginDirectory);
+        strWorldConfigDirectory = strPluginDirectory + "/per-world/";
         objWorldConfigDirectory = new File(strWorldConfigDirectory);
+        strPluginConfig = strPluginDirectory + "/config.yml";
         objPluginConfig = new File(strPluginConfig);
         /*
          * Open the Plugin file as an EasyZipFile
@@ -147,10 +146,8 @@ public class Inception
         getServer().getPluginManager().registerEvents(objWorldListener, this);
 
         // Register API...
-        if (bGeneralAPIEnabled) {
-            objAPI = new InceptionAPI(this);
-            objLogger.info("Registering API...");
-        }
+        objAPI = new InceptionAPI(this);
+        objLogger.info("Registering API...");
 
         // Done.
         objLogger.info("Enabled.");
@@ -395,7 +392,7 @@ public class Inception
     /*
      * Accessors
      */
-    public EasyZipFile getPluginZipFile() {
+    public EasyZipFile getEzfPluginFile() {
         return objPluginFile;
     }
 
@@ -537,5 +534,9 @@ public class Inception
      */
     public InceptionAPI getAPI() {
         return objAPI;
+    }
+
+    public boolean bolGeneralAPIEnabled() {
+	    return bGeneralAPIEnabled;
     }
 }
