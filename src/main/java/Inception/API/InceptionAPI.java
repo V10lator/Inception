@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ag.AlteredGaming.API;
+package Inception.API;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -10,12 +10,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
-import ag.AlteredGaming.Inception;
-import ag.AlteredGaming.API.Events.EntityWorldToWorldTpEvent;
-import ag.AlteredGaming.API.Events.InceptionEvent;
-import ag.AlteredGaming.API.Events.ItemWorldToWorldTpEvent;
-import ag.AlteredGaming.API.Events.VehicleWorldToWorldTpEvent;
-import ag.AlteredGaming.Other.util;
+import Inception.Main.Inception;
+import Inception.API.Events.EntityWorldToWorldTpEvent;
+import Inception.API.Events.InceptionEvent;
+import Inception.API.Events.ItemWorldToWorldTpEvent;
+import Inception.API.Events.VehicleWorldToWorldTpEvent;
+import Inception.Other.util;
 
 /**
  *

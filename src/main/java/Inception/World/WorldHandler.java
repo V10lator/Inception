@@ -1,7 +1,7 @@
-package ag.AlteredGaming.World;
+package Inception.World;
 
-import ag.AlteredGaming.Other.Triggers;
-import ag.AlteredGaming.Inception;
+import Inception.Other.Triggers;
+import Inception.Main.Inception;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

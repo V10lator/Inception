@@ -1,7 +1,7 @@
-package ag.AlteredGaming.Other;
+package Inception.Other;
 
-import ag.AlteredGaming.Inception;
-import ag.AlteredGaming.Other.util;
+import Inception.Main.Inception;
+import Inception.Other.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;

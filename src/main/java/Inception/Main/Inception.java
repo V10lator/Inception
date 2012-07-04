@@ -1,11 +1,11 @@
-package ag.AlteredGaming;
+package Inception.Main;
 
-import ag.AlteredGaming.Other.EasyZipFile;
-import ag.AlteredGaming.Other.Triggers;
-import ag.AlteredGaming.Other.util;
-import ag.AlteredGaming.API.InceptionAPI;
-import ag.AlteredGaming.World.WorldHandler;
-import ag.AlteredGaming.World.WorldListener;
+import Inception.Other.EasyZipFile;
+import Inception.Other.Triggers;
+import Inception.Other.util;
+import Inception.API.InceptionAPI;
+import Inception.World.WorldHandler;
+import Inception.World.WorldListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

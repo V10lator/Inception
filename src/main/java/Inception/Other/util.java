@@ -1,6 +1,6 @@
-package ag.AlteredGaming.Other;
+package Inception.Other;
 
-import ag.AlteredGaming.Inception;
+import Inception.Main.Inception;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

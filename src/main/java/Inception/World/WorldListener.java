@@ -1,6 +1,6 @@
-package ag.AlteredGaming.World;
+package Inception.World;
 
-import ag.AlteredGaming.Inception;
+import Inception.Main.Inception;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

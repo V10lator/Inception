@@ -1,4 +1,4 @@
-package ag.AlteredGaming.API.Events;
+package Inception.API.Events;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;

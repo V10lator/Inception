@@ -6,7 +6,7 @@
     <groupId>ag.AlteredGaming</groupId>
     <artifactId>Inception</artifactId>
     <name>Inception</name>
-    <version>0.1.1-Beta</version>
+    <version>0.2.0-Beta</version>
     <url>http://alteredgaming.de</url>
     <description>Inception allows you to make your CraftBukkit worlds connect with each other.</description>
     
